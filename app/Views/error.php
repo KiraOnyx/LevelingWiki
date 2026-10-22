@@ -1,0 +1,1 @@
+<section class="error-state empty-state"><div class="empty-emblem"><?= icon('book') ?></div><p class="eyebrow">LES ARCHIVES</p><h1><?= e(http_response_code() === 404 ? 'Page introuvable' : 'Un instant de repos') ?></h1><p><?= e($error) ?></p><a class="secondary-button" href="/succes">Retour au catalogue</a></section>

@@ -1,0 +1,5 @@
+# Pour un hébergement Apache qui autorise ces directives (.htaccess ignoré dans Docker).
+Options -Indexes
+DirectoryIndex index.php
+FallbackResource /index.php
+AddType text/javascript .mjs

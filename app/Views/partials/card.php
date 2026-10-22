@@ -1,0 +1,7 @@
+<article class="achievement-card neu-flat" data-card="<?= e($item['slug']) ?>">
+    <div class="card-top"><div class="achievement-icon"><?php if ($image = App\Services\CatalogService::image($item['icon_path'])): ?><img src="<?= e($image) ?>" alt="" loading="lazy"><?php else: ?><?= icon('medal') ?><?php endif; ?></div><div class="card-title"><p class="card-category"><?= e($item['category'] ?? 'Catégorie non renseignée') ?></p><h3><a class="card-link" href="/succes/<?= e(rawurlencode($item['slug'])) ?>"><?= e($item['name']) ?></a></h3></div><?php if ($item['secret_type'] === 'secret'): ?><span class="secret-badge">SECRET</span><?php endif; ?></div>
+    <p class="card-description"><?= e($item['description'] ?: 'Description à venir.') ?></p>
+    <div class="card-meta"><?php if ($item['rarity']): ?><span><?= e($item['rarity']) ?></span><?php endif; ?><span class="verification <?= $item['verification_status'] === 'verified' ? 'verified' : '' ?>"><?= $item['verification_status'] === 'verified' ? '✓ Confirmé' : 'À confirmer' ?></span></div>
+    <?php require __DIR__ . '/rewards.php'; ?>
+    <div class="card-bottom"><button type="button" class="obtained-button" data-toggle="<?= e($item['slug']) ?>" aria-pressed="false" aria-label="Marquer comme obtenu : <?= e($item['name']) ?>" hidden>Marquer comme obtenu</button><span class="card-open">Voir le succès <?= icon('arrow') ?></span></div>
+</article>
