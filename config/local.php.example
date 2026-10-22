@@ -1,0 +1,9 @@
+<?php
+// Copier vers local.php uniquement sur un hébergement sans variables d’environnement.
+return [
+    'host' => 'localhost',
+    'port' => '3306',
+    'database' => 'A_RENSEIGNER',
+    'username' => 'A_RENSEIGNER',
+    'password' => 'A_RENSEIGNER',
+];
