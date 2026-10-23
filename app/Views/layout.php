@@ -1,3 +1,7 @@
+<?php
+$illustratedNotFound = $page === 'error' && http_response_code() === 404;
+$hasYggdrasil = in_array($page, ['member/home', 'catalog', 'member/achievements', 'member/profile'], true);
+?>
 <!doctype html>
 <html lang="fr">
 <head>
@@ -10,11 +14,11 @@
     <link rel="stylesheet" href="/assets/vendor/neu-axentix/neu-axentix.min.css">
     <link rel="stylesheet" href="/assets/css/theme.css">
     <link rel="stylesheet" href="/assets/css/admin.css">
-    <link rel="stylesheet" href="/assets/css/valhalla.css?v=6.1">
+    <link rel="stylesheet" href="/assets/css/valhalla.css?v=6.2">
     <script defer src="/assets/js/interface.js?v=6.1"></script>
     <script type="module" src="/assets/js/app.js?v=6.1"></script>
 </head>
-<body class="neu-dark lw-theme member-theme">
+<body class="neu-dark lw-theme member-theme<?= $illustratedNotFound ? ' ginnungagap-page' : ($hasYggdrasil ? ' yggdrasil-page' : '') ?>">
 <a class="skip-link" href="#main">Aller au contenu</a>
 <?php require __DIR__.'/partials/navigation.php'; ?>
 <main id="main" class="page-shell" tabindex="-1">

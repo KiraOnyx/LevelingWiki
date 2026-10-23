@@ -12,6 +12,7 @@ compose_test exec -T web php tests/admin.php
 compose_test exec -T web php tests/phase4.php
 compose_test exec -T web php tests/phase5.php
 compose_test exec -T web php tests/valhalla.php
+compose_test exec -T web php tests/illustrations.php
 compose_test exec -T web php tests/binary-migration.php
 compose_test exec -T web php tests/import.php
 compose_test exec -T web php tests/database.php
