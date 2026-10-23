@@ -3,6 +3,7 @@ declare(strict_types=1);
 function e(mixed $value): string { return htmlspecialchars((string) $value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8'); }
 function icon(string $name = 'medal', string $class = ''): string {
     $paths = [
+        'shield' => '<path d="M12 2 3 6v6c0 5 9 10 9 10s9-5 9-10V6Z"/><path d="M12 6v11M7 9l5-3 5 3M8 13l4 4 4-4"/>',
         'medal' => '<path d="m8 3 4 6 4-6M9 3l3 5 3-5"/><circle cx="12" cy="15" r="7"/><path d="m12 11 1.2 2.5 2.8.4-2 2 .5 2.7-2.5-1.3-2.5 1.3.5-2.7-2-2 2.8-.4Z"/>',
         'search' => '<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',
         'arrow' => '<path d="M5 12h14m-5-5 5 5-5 5"/>',

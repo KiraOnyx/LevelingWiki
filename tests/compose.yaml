@@ -7,7 +7,18 @@ services:
       - "127.0.0.1:8081:80"
     volumes:
       - ..:/var/www/html:ro
+    tmpfs:
+      - /var/www/storage:uid=33,gid=33,mode=0700
     environment:
+      OWNER_LOGIN_PATH: ${TEST_OWNER_LOGIN_PATH:-/isolated-test/0123456789abcdef0123456789abcdef}
+      DISCORD_CLIENT_ID: '300000000000000001'
+      DISCORD_CLIENT_SECRET: isolated-test-only
+      DISCORD_GUILD_ID: '400000000000000001'
+      DISCORD_REDIRECT_URI: http://localhost:8081/auth/discord/callback
+      DISCORD_TEST_API: http://discord:8082
+      SESSION_IDLE_SECONDS: ${TEST_SESSION_IDLE:-10}
+      SESSION_ABSOLUTE_SECONDS: ${TEST_SESSION_ABSOLUTE:-120}
+      UPLOAD_DIRECTORY: /var/www/storage/uploads
       APP_ENV: test
       DB_HOST: database
       DB_PORT: 3306
@@ -31,3 +42,14 @@ services:
       interval: 2s
       timeout: 5s
       retries: 30
+
+  discord:
+    image: levelingwiki-tests-web
+    command: ["php", "-S", "0.0.0.0:8082", "/var/www/html/tests/discord-mock.php"]
+    volumes:
+      - ..:/var/www/html:ro
+    environment:
+      APP_ENV: test
+      DB_DATABASE: levelingwiki_test
+    tmpfs:
+      - /tmp

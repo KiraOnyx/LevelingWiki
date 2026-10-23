@@ -6,7 +6,7 @@ export function readObtained(raw) {
         return new Set(Array.isArray(parsed) ? parsed.filter(value => typeof value === 'string') : []);
     } catch { return new Set(); }
 }
-export function filterItems(items, filters = {}, obtained = new Set()) {
+export function filterItems(items, filters = {}, obtained = new Set(), states = {}) {
     const query = normalize(filters.q).trim();
     const matches = items.filter(item => {
         const text = [item.name, item.description, item.unlock_conditions, ...item.titles,
@@ -17,7 +17,7 @@ export function filterItems(items, filters = {}, obtained = new Set()) {
             && (!filters.rarity || (filters.rarity === 'unknown' ? !item.rarity : normalize(item.rarity) === filters.rarity))
             && (!filters.category || String(item.category_id) === filters.category)
             && (!filters.status || (filters.status === 'verified' ? item.verification_status === 'verified' : item.verification_status !== 'verified'))
-            && (!filters.progress || (filters.progress === 'obtained' ? obtained.has(item.slug) : !obtained.has(item.slug)))
+            && (!filters.progress || (filters.progress === 'obtained' ? obtained.has(item.slug) : filters.progress === 'remaining' ? !obtained.has(item.slug) : (states[item.slug] || 'not_started') === filters.progress))
             && (filters.rewards ?? []).every(reward => reward === 'titles' ? item.titles.length > 0 : Number(item[`reward_${reward}`]) > 0);
     });
     const collator = new Intl.Collator('fr', { sensitivity: 'base', numeric: true });

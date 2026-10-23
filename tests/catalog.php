@@ -10,7 +10,8 @@ $repository = new App\Models\AchievementRepository(App\Services\Database::connec
 $items = $repository->all();
 verify(count($items) === 4, 'lecture des quatre fixtures');
 verify(App\Services\CatalogService::stats($items) === [4, 1, 2, 2], 'statistiques calculées depuis les données');
-verify(count($repository->categories()) === 2, 'catégories issues de la base');
+$categoryNames = array_column($repository->categories(), 'name');
+verify(in_array('Entraînement', $categoryNames, true) && in_array('Exploration', $categoryNames, true), 'catégories des fixtures conservées dans la base enrichie');
 $bySlug = array_column($items, null, 'slug');
 verify($bySlug['elan-du-matin-test']['titles'] === ['Éclaireur'], 'titres associés chargés');
 verify(str_contains($bySlug['elan-du-matin-test']['unlock_conditions'], 'cinq séances'), 'conditions chargées');

@@ -1,0 +1,1 @@
+<section class="detail-panel neu-flat"><h1>Opération indisponible</h1><p class="admin-intro">Revenez à une page autorisée pour poursuivre.</p><a class="secondary-button" href="/admin">Retour à l’administration</a><a class="back-link" href="/">Retour au site</a></section>

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" fill="none">
+<defs><linearGradient id="metal" x2="0" y2="1"><stop stop-color="#334554"/><stop offset="1" stop-color="#0b1016"/></linearGradient><radialGradient id="glow"><stop stop-color="#e4c98a" stop-opacity=".3"/><stop offset="1" stop-color="#c9a45c" stop-opacity="0"/></radialGradient></defs>
+<path fill="#111a23" d="M0 0h1200v600H0z"/><ellipse cx="890" cy="250" rx="370" ry="370" fill="url(#glow)"/>
+<g stroke="#c9a45c" stroke-opacity=".17" fill="url(#metal)"><path d="M600 600V150L880 5l280 145v450h-65V180L880 65 665 180v420Z"/><path d="M700 600V210l180-95 180 95v390h-45V240l-135-75-135 75v360Z"/><path d="M780 600V275l100-55 100 55v325Z"/></g>
+<g stroke="#c9a45c" stroke-opacity=".35"><path d="M626 580V168L880 35l254 133v412M716 580V223l164-89 164 89v357"/><path d="m592 185 35-35 35 35-35 35Zm490 0 35-35 35 35-35 35Z"/><path d="M500 600 880 380l320 185M610 600l270-160 240 160M780 600l100-80 100 80"/></g>
+<path d="M880 285 829 307v62c0 38 51 68 51 68s51-30 51-68v-62Z" fill="#17212b" stroke="#c9a45c" stroke-opacity=".65"/><path d="m880 309-29 17v39l29 34 29-34v-39Z" stroke="#e4c98a" stroke-opacity=".55"/><path d="M880 320v62m-20-45 20-13 20 13" stroke="#e4c98a" stroke-opacity=".55"/>
+</svg>

@@ -13,9 +13,10 @@ final class AchievementRepository
             a.rarity, a.secret_type, a.reward_xp, a.reward_gold, a.reward_gems, a.reward_keys,
             a.title_rewards_known, a.verification_status, a.created_at,
             GREATEST(a.updated_at, COALESCE(d.updated_at, a.updated_at)) AS updated_at,
-            c.name AS category, d.unlock_conditions, d.icon_path, d.evidence_path
+            c.name AS category,c.color AS category_color,a.source_url, d.unlock_conditions, d.icon_path, d.evidence_path
             FROM achievements a LEFT JOIN categories c ON c.id = a.category_id
             LEFT JOIN achievement_details d ON d.achievement_id = a.id
+            WHERE a.publication_status = 'published' AND a.archived_at IS NULL
             ORDER BY a.name, a.id")->fetchAll();
         $titles = [];
         foreach ($this->pdo->query('SELECT at.achievement_id, t.name FROM achievement_titles at
@@ -34,6 +35,6 @@ final class AchievementRepository
 
     public function categories(): array
     {
-        return $this->pdo->query('SELECT id, name FROM categories ORDER BY name')->fetchAll();
+        return $this->pdo->query("SELECT id, name, color FROM categories WHERE archived_at IS NULL ORDER BY name")->fetchAll();
     }
 }

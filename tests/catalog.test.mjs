@@ -39,3 +39,9 @@ test('suivi personnel et désérialisation robuste', () => {
     assert.equal(slugs({progress:'remaining'}, obtained).length, 3);
     for (const raw of [null, 'oops', '{}', 'null']) assert.equal(readObtained(raw).size, 0);
 });
+test('obtenus et manquants restent complémentaires même après recherche', () => {
+    const done=new Set(['zero-test']);
+    assert.equal(filterItems(items,{progress:'remaining'},done).length,3);
+    assert.equal(filterItems(items,{progress:'obtained'},done)[0].slug,'zero-test');
+    assert.deepEqual(filterItems(items,{progress:'remaining',q:'elan'},done).map(i=>i.slug),['elan-du-matin-test']);
+});

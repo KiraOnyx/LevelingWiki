@@ -18,7 +18,7 @@ try {
             checksum CHAR(64) NOT NULL,
             applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
-        $files = glob(dirname(__DIR__) . '/database/migrations/*.sql');
+        $files = array_merge(glob(dirname(__DIR__) . '/database/migrations/*.sql'), glob(dirname(__DIR__) . '/database/migrations/*.php'));
         sort($files, SORT_STRING);
         foreach ($files as $file) {
             $version = basename($file);
@@ -34,8 +34,13 @@ try {
                 echo "Déjà appliquée : $version\n";
                 continue;
             }
-            // Une instruction DDL idempotente par fichier : MySQL ne rollback pas le DDL.
-            $pdo->exec($sql);
+            // Le DDL ne rollback pas. Les migrations PHP inspectent chaque étape avant application.
+            if (str_ends_with($file, '.php')) {
+                $migration = require $file;
+                $migration($pdo);
+            } else {
+                $pdo->exec($sql);
+            }
             $pdo->prepare('INSERT INTO schema_migrations (version, checksum) VALUES (?, ?)')
                 ->execute([$version, $checksum]);
             echo "Appliquée : $version\n";

@@ -6,7 +6,19 @@ services:
       - "127.0.0.1:8080:80"
     volumes:
       - .:/var/www/html:ro
+      - upload_data:/var/www/storage
     environment:
+      OWNER_LOGIN_PATH: ${OWNER_LOGIN_PATH:-}
+      DISCORD_CLIENT_ID: ${DISCORD_CLIENT_ID:-}
+      DISCORD_CLIENT_SECRET: ${DISCORD_CLIENT_SECRET:-}
+      DISCORD_GUILD_ID: ${DISCORD_GUILD_ID:-xxxx}
+      DISCORD_REDIRECT_URI: ${DISCORD_REDIRECT_URI:-http://localhost:8080/auth/discord/callback}
+      DISCORD_ROLE_TTL: ${DISCORD_ROLE_TTL:-300}
+      SESSION_IDLE_SECONDS: ${SESSION_IDLE_SECONDS:-1800}
+      SESSION_ABSOLUTE_SECONDS: ${SESSION_ABSOLUTE_SECONDS:-28800}
+      SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-0}
+      UPLOAD_MAX_BYTES: ${UPLOAD_MAX_BYTES:-5242880}
+      UPLOAD_DIRECTORY: /var/www/storage/uploads
       APP_ENV: ${APP_ENV:-development}
       DB_HOST: database
       DB_PORT: 3306
@@ -33,3 +45,4 @@ services:
       start_period: 20s
 volumes:
   database_data:
+  upload_data:

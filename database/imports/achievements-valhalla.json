@@ -1,0 +1,571 @@
+{
+  "source": {
+    "title": "Le Codex des succès secrets — Archives de Valhalla",
+    "edition": "2026-10-14",
+    "status": "guide communautaire non officiel",
+    "note": "Les valeurs non mentionnées sont null (inconnues), jamais zéro par défaut."
+  },
+  "achievements": [
+    {
+      "source_number": 1,
+      "name": "Contrat éclair",
+      "slug": "contrat-eclair",
+      "description": "Valider une quête urgente dans les 90 secondes.",
+      "category": "Bleu",
+      "rewards": {
+        "xp": 900,
+        "gold": 450,
+        "gems": 5,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 2,
+      "name": "Contrat profond",
+      "slug": "contrat-profond",
+      "description": "Valider une quête après au moins 2 heures de session.",
+      "category": "Bleu",
+      "rewards": {
+        "xp": 1500,
+        "gold": 300,
+        "gems": 3,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 3,
+      "name": "Dernière seconde",
+      "slug": "derniere-seconde",
+      "description": "Valider une quête Daily dans la dernière minute avant son échéance.",
+      "category": "Bleu",
+      "rewards": {
+        "xp": 600,
+        "gold": 300,
+        "gems": 3,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 4,
+      "name": "Fil du rasoir",
+      "slug": "fil-du-rasoir",
+      "description": "Valider une quête urgente dans les 10 dernières secondes avant son échéance.",
+      "category": "Bleu",
+      "rewards": {
+        "xp": 900,
+        "gold": 450,
+        "gems": 5,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 5,
+      "name": "Foulée décuplée",
+      "slug": "foulee-decuplee",
+      "description": "Valider une course en faisant au moins 10 fois la distance.",
+      "category": "Bleu",
+      "rewards": {
+        "xp": 500,
+        "gold": 250,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 6,
+      "name": "Contrat de minuit",
+      "slug": "contrat-de-minuit",
+      "description": "Valider une quête entre minuit et 4 h du matin.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 500,
+        "gold": 250,
+        "gems": 2,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 7,
+      "name": "Coureur marqué",
+      "slug": "coureur-marque",
+      "description": "Valider une quête avec au moins une pénalité.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 200,
+        "gold": 100,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 8,
+      "name": "Dernier rempart",
+      "slug": "dernier-rempart",
+      "description": "Saisir « SUPPRIMER » dans la procédure de suppression du compte, puis annuler avant confirmation.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 200,
+        "gold": 100,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 9,
+      "name": "Double ou rien",
+      "slug": "double-ou-rien",
+      "description": "Découvrir le pile ou face caché dans la boutique.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 60,
+        "gold": 25,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 10,
+      "name": "Grind silencieux",
+      "slug": "grind-silencieux",
+      "description": "Compléter une quête après 7 jours sans ouvrir l’écran des succès.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 700,
+        "gold": 350,
+        "gems": 3,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 11,
+      "name": "Maître de l’abandon",
+      "slug": "maitre-de-labandon",
+      "description": "Au début, refuser de devenir joueur.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 50,
+        "gold": 25,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 12,
+      "name": "Patrouille de l’aube",
+      "slug": "patrouille-de-laube",
+      "description": "Valider une quête Daily entre 4 h et 6 h du matin.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 500,
+        "gold": 250,
+        "gems": 2,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 13,
+      "name": "Rebelle du repos",
+      "slug": "rebelle-du-repos",
+      "description": "Terminer une quête personnalisée un jour de repos.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 500,
+        "gold": 250,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 14,
+      "name": "Rebond",
+      "slug": "rebond",
+      "description": "Utiliser l’action rapide de suppression, puis choisir de continuer.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 200,
+        "gold": 100,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 15,
+      "name": "Reflet parfait",
+      "slug": "reflet-parfait",
+      "description": "Terminer une quête à la même minute qu’un ami.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 900,
+        "gold": 450,
+        "gems": 3,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 16,
+      "name": "Revenant",
+      "slug": "revenant",
+      "description": "Valider une quête après 30 jours sans en avoir terminé.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 1200,
+        "gold": 600,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 17,
+      "name": "Second souffle",
+      "slug": "second-souffle",
+      "description": "Revenir sur une quête abandonnée : quitter un exercice avant le dernier, puis le reprendre.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 150,
+        "gold": 75,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 18,
+      "name": "Victoire par forfait",
+      "slug": "victoire-par-forfait",
+      "description": "Valider une Daily et une Focus après avoir abandonné les 8 exercices.",
+      "category": "Rose",
+      "rewards": {
+        "xp": 80,
+        "gold": 80,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 19,
+      "name": "Archiviste",
+      "slug": "archiviste",
+      "description": "Débloquer 20 succès secrets.",
+      "category": "Jaune",
+      "rewards": {
+        "xp": 4000,
+        "gold": 2000,
+        "gems": 30,
+        "keys": 1
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 20,
+      "name": "Pause du prologue",
+      "slug": "pause-du-prologue",
+      "description": "Attendre 7 jours après l’inscription sans compléter une quête.",
+      "category": "Jaune",
+      "rewards": {
+        "xp": 77,
+        "gold": 77,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 21,
+      "name": "Première réclamation",
+      "slug": "premiere-reclamation",
+      "description": "Récupérer sa première récompense de succès.",
+      "category": "Jaune",
+      "rewards": {
+        "xp": 100,
+        "gold": 50,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 22,
+      "name": "Triple shift",
+      "slug": "triple-shift",
+      "description": "Terminer une Daily, une Focus et une Urgente le même jour.",
+      "category": "Jaune",
+      "rewards": {
+        "xp": 700,
+        "gold": 350,
+        "gems": 3,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 23,
+      "name": "Ascension solitaire",
+      "slug": "ascension-solitaire",
+      "description": "Gagner 5 niveaux sans ami ni guilde.",
+      "category": "Turquoise",
+      "rewards": {
+        "xp": 700,
+        "gold": 350,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 24,
+      "name": "Chemin perso",
+      "slug": "chemin-perso",
+      "description": "Compléter sa première quête personnalisée.",
+      "category": "Turquoise",
+      "rewards": {
+        "xp": 150,
+        "gold": 75,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 25,
+      "name": "Gros lot",
+      "slug": "gros-lot",
+      "description": "Obtenir un objet légendaire dans un coffre.",
+      "category": "Turquoise",
+      "rewards": {
+        "xp": 2000,
+        "gold": 1000,
+        "gems": 12,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 26,
+      "name": "Le destin dans la poche",
+      "slug": "le-destin-dans-la-poche",
+      "description": "Obtenir 5 résultats +10 % d’affilée avec des Pièces du destin, sans aucun -10 % entre eux.",
+      "category": "Turquoise",
+      "rewards": {
+        "xp": 2000,
+        "gold": 1000,
+        "gems": 12,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 27,
+      "name": "Pile gagnante",
+      "slug": "pile-gagnante",
+      "description": "Obtenir un résultat +10 % avec une Pièce du destin.",
+      "category": "Turquoise",
+      "rewards": {
+        "xp": 300,
+        "gold": 150,
+        "gems": 5,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 28,
+      "name": "Signal caché",
+      "slug": "signal-cache",
+      "description": "Trouver un succès secret.",
+      "category": "Turquoise",
+      "rewards": {
+        "xp": 150,
+        "gold": 75,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 29,
+      "name": "Gardien du week-end",
+      "slug": "gardien-du-week-end",
+      "description": "Valider une Daily, Focus ou Urgente le samedi et le dimanche du même week-end.",
+      "category": "Vert",
+      "rewards": {
+        "xp": 500,
+        "gold": 250,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 30,
+      "name": "Première braise",
+      "slug": "premiere-braise",
+      "description": "Valider une Daily le premier jour d’une nouvelle série.",
+      "category": "Vert",
+      "rewards": {
+        "xp": 150,
+        "gold": 75,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 31,
+      "name": "Semaine parfaite",
+      "slug": "semaine-parfaite",
+      "description": "Valider une Daily chaque jour du lundi au dimanche de la même semaine.",
+      "category": "Vert",
+      "rewards": {
+        "xp": 2000,
+        "gold": 1000,
+        "gems": 12,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 32,
+      "name": "Semaine sans zéro",
+      "slug": "semaine-sans-zero",
+      "description": "Valider une Daily, Focus ou Urgente chaque jour pendant 7 jours consécutifs.",
+      "category": "Vert",
+      "rewards": {
+        "xp": 900,
+        "gold": 450,
+        "gems": 3,
+        "keys": 0
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Données issues du codex communautaire, non vérifiées en temps réel"
+    },
+    {
+      "source_number": 33,
+      "name": "Même jour, autre monde",
+      "slug": "meme-jour-autre-monde",
+      "description": "Valider une Daily dans un pays et une Focus ou Urgente dans un autre pays.",
+      "category": "À confirmer",
+      "rewards": {
+        "xp": null,
+        "gold": null,
+        "gems": null,
+        "keys": null
+      },
+      "publication_status": "draft",
+      "source_url": null,
+      "titles": [],
+      "verification_note": "Récompenses à confirmer"
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+<section class="nordic-hero"><div class="hero-welcome"><?php require dirname(__DIR__).'/partials/avatar.php'; ?><span>Bienvenue, <?= e($user['display_name']??$user['username']) ?></span></div><p class="eyebrow">LES ARCHIVES DE VOS EXPLOITS</p><h1>Le Codex<br>du Valhalla</h1><p>Chaque exploit mérite sa place dans la légende.</p><div class="hero-actions"><a class="primary-button" href="/succes">Explorer le Codex <?= icon('arrow') ?></a><a class="secondary-button" href="/mes-succes?progress=remaining">Voir les succès manquants</a></div></section>
+<?php require dirname(__DIR__).'/partials/ascension.php'; ?>
+<?php require dirname(__DIR__).'/partials/estimates.php'; ?>
+<div class="personal-columns"><?php require dirname(__DIR__).'/partials/category-progress.php'; require dirname(__DIR__).'/partials/recent.php'; ?></div>

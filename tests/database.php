@@ -31,7 +31,7 @@ try {
         $pdo->query("SELECT 1 FROM `$table` LIMIT 1");
         echo "OK : table $table\n";
     }
-    check((int) $pdo->query('SELECT COUNT(*) FROM schema_migrations')->fetchColumn() === count(glob(dirname(__DIR__) . '/database/migrations/*.sql')), 'toutes les migrations enregistrées');
+    check((int) $pdo->query('SELECT COUNT(*) FROM schema_migrations')->fetchColumn() === count(glob(dirname(__DIR__) . '/database/migrations/*.*')), 'toutes les migrations enregistrées');
     $pdo->beginTransaction();
     $token = bin2hex(random_bytes(8));
     $pdo->exec("INSERT INTO users (username, email, password_hash) VALUES ('$token', '$token@example.invalid', 'test-only')");

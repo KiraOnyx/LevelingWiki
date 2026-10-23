@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace App\Controllers;
 use App\Models\AchievementRepository;
-use App\Services\{Database, CatalogService};
+use App\Services\{Database, CatalogService, Auth, PersonalService};
 use Throwable;
 
 final class CatalogController
@@ -14,7 +14,11 @@ final class CatalogController
         $error = null;
         $detail = $slug !== null;
         try {
-            $repository = new AchievementRepository(Database::connect());
+            $pdo=Database::connect();$auth=new Auth($pdo);
+            $user=MemberController::requireUser($auth);
+            if (!$user) return;
+            $csrf=$auth->csrf();$overview=(new PersonalService($pdo))->overview((int)$user['id']);$personalRows=$overview['rows'];
+            $repository = new AchievementRepository($pdo);
             $items = $repository->all();
             $categories = $repository->categories();
             if ($detail) {
@@ -28,9 +32,15 @@ final class CatalogController
             $error = 'Les archives sont momentanément indisponibles. Réessayez dans quelques instants.';
             error_log('LevelingWiki : catalogue indisponible.');
         }
+        $personal=null;
+        if ($item) foreach ($personalRows??[] as $row) if ((int)$row['achievement_id']===(int)$item['id']) $personal=$row;
+        $personalById=array_column($personalRows??[],null,'achievement_id');
+        $personalPage=parse_url($_SERVER['REQUEST_URI']??'',PHP_URL_PATH)==='/mes-succes';
+        $accountObtained=array_column(array_filter($personalRows??[],fn($r)=>$r['available'] && $r['progress']==='obtained'),'slug');
         $stats = CatalogService::stats($items);
         $title = $item ? $item['name'] . ' — LevelingWiki' : 'Archives des succès — LevelingWiki';
-        $page = $error ? 'error' : ($detail ? 'detail' : 'catalog');
+        $page = $error ? 'error' : ($detail ? 'detail' : ($personalPage?'member/achievements':'catalog'));
+        if(isset($overview))extract($overview,EXTR_SKIP);
         require dirname(__DIR__) . '/Views/helpers.php';
         require dirname(__DIR__) . '/Views/layout.php';
     }

@@ -4,3 +4,5 @@
 config/local.php
 vendor
 node_modules
+
+storage

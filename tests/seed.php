@@ -30,6 +30,7 @@ try {
             $pdo->prepare('INSERT INTO achievement_titles (achievement_id, title_id) VALUES (?, ?)')->execute([$id, $title]);
         }
     }
+    $pdo->exec("UPDATE achievements SET publication_status = 'published'");
     $pdo->commit();
     echo "Quatre fixtures créées dans levelingwiki_test uniquement.\n";
 } catch (Throwable $error) { $pdo->rollBack(); throw $error; }
