@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Administration — LevelingWiki</title><link rel="icon" href="/assets/images/emblem.svg"><link rel="stylesheet" href="/assets/vendor/neu-axentix/neu-axentix.min.css"><link rel="stylesheet" href="/assets/css/theme.css"><link rel="stylesheet" href="/assets/css/admin.css"><link rel="stylesheet" href="/assets/css/valhalla.css?v=6.1"><script defer src="/assets/js/interface.js?v=6.1"></script></head>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><title>Administration — LevelingWiki</title><link rel="icon" href="/assets/images/emblem.svg"><link rel="stylesheet" href="/assets/vendor/neu-axentix/neu-axentix.min.css"><link rel="stylesheet" href="/assets/css/theme.css"><link rel="stylesheet" href="/assets/css/admin.css"><link rel="stylesheet" href="/assets/css/valhalla.css?v=10.1"><script defer src="/assets/js/interface.js?v=9"></script></head>
 <body class="neu-dark lw-theme admin-theme"><a class="skip-link" href="#admin-main">Aller au contenu</a>
 <?php require dirname(__DIR__).'/partials/navigation.php'; ?>
 <div class="admin-shell">

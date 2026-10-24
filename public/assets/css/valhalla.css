@@ -50,3 +50,131 @@ body.ginnungagap-page .page-shell{max-width:none;width:100%;padding:0;margin:0}
 }
 /* Portrait screens favour the traveller; landscape retains the portal too. */
 @media(max-aspect-ratio:1/1){.ginnungagap{background-position:center,30% center}}
+/* Category accents are shared by cards, details and category progress. */
+:root{--category-blue:#4f8fd1;--category-pink:#c778a8;--category-yellow:#d2aa56;--category-turquoise:#39aaa7;--category-green:#70a47a;--category-neutral:#929eaa}
+.category-blue{--category-color:var(--category-blue)}.category-pink{--category-color:var(--category-pink)}.category-yellow{--category-color:var(--category-yellow)}.category-turquoise{--category-color:var(--category-turquoise)}.category-green{--category-color:var(--category-green)}.category-neutral{--category-color:var(--category-neutral)}
+.category-badge{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--category-color,var(--category-neutral));border-radius:8px;padding:5px 8px;color:var(--text-primary);font-size:12px;line-height:1.5;max-width:100%;overflow-wrap:anywhere}
+body .achievement-card{border-left:4px solid var(--category-color,var(--category-neutral));min-width:0;transition:border-color .16s ease,box-shadow .16s ease}
+body .achievement-card .achievement-icon{border-color:var(--category-color,var(--category-neutral))}
+@supports(background:color-mix(in srgb,red,transparent)){
+ body .achievement-card{background:linear-gradient(135deg,color-mix(in srgb,var(--category-color,var(--category-neutral)) 8%,transparent),transparent 65%),var(--card-bg)!important}
+}
+@media(hover:hover){body .achievement-card:hover{border-color:var(--category-color,var(--category-neutral));box-shadow:0 8px 24px #0004!important}}
+body .category-progress progress::-webkit-progress-value{background:var(--category-color,var(--category-neutral))}
+body .category-progress progress::-moz-progress-bar{background:var(--category-color,var(--category-neutral))}
+body.collection-page .page-shell{max-width:1440px;width:calc(100% - 48px);margin-inline:auto;padding:28px 0 48px}
+body .achievement-grid{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:20px}
+body .card-top{flex-wrap:wrap;align-items:flex-start;gap:12px}body .card-title{min-width:0;flex:1 1 180px}body .card-title h3{overflow-wrap:anywhere}body .card-category{width:fit-content;text-transform:none;letter-spacing:0}
+body .card-description{overflow-wrap:anywhere}.card-top .secret-badge{margin-left:auto}.card-title .card-category svg{flex-shrink:0}
+body .filters-grid{grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}body .filters-grid label{min-width:0}body .filters-grid select{width:100%;max-width:100%}
+body .filter-bottom{flex-wrap:wrap}body fieldset{min-width:0}body .reward-filters{flex-wrap:wrap}
+.mobile-install{margin-top:32px;padding-top:28px;border-top:1px solid var(--line)}
+.install-heading{display:flex;gap:18px;align-items:center;margin-bottom:20px}.install-heading img{flex:none}.install-heading h2{margin-bottom:8px}.install-heading p{color:var(--text-secondary);max-width:850px}
+.install-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.install-card{background:var(--bg-secondary);border:1px solid #655a42;border-radius:var(--vh-radius);padding:24px;min-width:0}.install-card h3{font-size:22px;margin:8px 0 14px}.install-card ol{padding-left:22px}.install-card li{padding:5px 0 5px 4px}.install-card>p:last-child{color:var(--text-secondary);margin-top:14px}
+/* Contain local scroll areas without hiding page-level overflow. */
+body .page-shell,body .admin-shell,body .admin-panel,body .detail-grid>*,body .edit-columns>*,body .form-grid>*,body .taxonomy-grid>*{min-width:0}
+body .admin-shell{max-width:1440px}body .table-scroll{width:100%;min-width:0;margin-inline:0;overscroll-behavior-x:contain}body .table-scroll:focus-visible{outline:3px solid var(--color-accent)}
+body .admin-form label,body .admin-form input,body .admin-form textarea,body .admin-form select{min-width:0;max-width:100%}
+body .metadata dd,body .multiline,body .detail-description,body .admin-notice,body .profile-heading h1{overflow-wrap:anywhere}
+body .page-shell,body .admin-shell{padding-bottom:max(40px,env(safe-area-inset-bottom))}
+body .header-inner{padding-left:max(20px,env(safe-area-inset-left));padding-right:max(20px,env(safe-area-inset-right))}
+@media(min-width:1400px){body.collection-page .achievement-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:1050px){body .filters-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){body .achievement-grid{grid-template-columns:minmax(0,1fr)}body .filters-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.install-grid{grid-template-columns:minmax(0,1fr)}.install-heading{align-items:flex-start}.install-heading img{width:44px;height:44px}body .results-toolbar{flex-wrap:wrap;gap:12px}body .profile-heading{flex-wrap:wrap}}
+@media(max-width:400px){body.collection-page .page-shell{width:calc(100% - 32px)}body .page-shell{padding-inline:16px}body .header-inner .brand{font-size:19px}body .header-inner{gap:8px}body .nav-logout .secondary-button{font-size:11px;padding:8px}body .brand{gap:8px}body .brand-mark{width:36px;height:40px}body .filters-grid{grid-template-columns:minmax(0,1fr)}body .filters-grid>label:nth-child(3){grid-column:auto}body .achievement-card{padding:16px}body .detail-title{flex-wrap:wrap}body .nordic-hero{padding:20px}body .nordic-hero h1{font-size:38px}.install-heading{flex-direction:column}.install-card{padding:20px}.collection-tabs{gap:8px}.collection-tabs a{min-width:0}.collection-tabs span{margin-left:4px}}
+@media(prefers-reduced-motion:reduce){body .achievement-card{transition:none}}
+body .card-description{display:block;-webkit-line-clamp:unset;overflow:visible}
+body .card-bottom{margin-top:auto;padding-top:18px}
+@media(max-width:400px){body.member-theme:not(.ginnungagap-page) .page-shell{width:calc(100% - 32px);margin-inline:auto;padding-inline:0}}
+
+/* Ergonomie : shared catalogue sidebar, natural scrolling and consistent spacing. */
+.catalog-layout{min-width:0}
+body .catalog-layout .filters-panel{margin-top:0}
+body .catalog-layout .results-toolbar{margin:16px 0}
+body .filters-panel summary{min-height:44px}
+body .achievement-card{padding:var(--vh-space-3)}
+body .card-description{margin-top:var(--vh-space-2)}
+body .card-meta{gap:8px 12px;margin:var(--vh-space-2) 0}
+body .card-bottom{margin-top:var(--vh-space-2);padding-top:var(--vh-space-2)}
+body .achievement-card .rewards{margin-top:auto}
+body .page-heading{margin-bottom:var(--vh-space-3)}
+body .estimate-panel,body .dashboard-latest{margin:var(--vh-space-3) 0}
+body .collection-tabs{margin:var(--vh-space-3) 0;flex-wrap:wrap}
+body .profile-heading{margin:16px 0 24px}
+body .context-filters{margin-bottom:var(--vh-space-2);gap:var(--vh-space-2)}
+body .admin-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:20px 0 12px}
+body .admin-stats .stat{min-width:0;padding:16px;min-height:100px}
+body .admin-stats .stat strong{font-size:28px}
+body .admin-stats .stat div>span{font-size:12px;overflow-wrap:anywhere}
+body .admin-stats+.form-help{margin-bottom:20px}
+.quick-status{position:relative;margin:0;min-width:155px}
+.quick-status select{min-height:44px}
+.quick-status button{margin-top:8px}
+[data-quick-feedback]{font-size:14px;margin-bottom:12px;color:var(--text-secondary)}
+[data-quick-feedback].error{color:#ffbdb5}
+[data-quick-feedback]:empty{display:none}
+@container collection (min-width:1040px){
+ .catalog-layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:0 24px;align-items:start}
+ .catalog-layout #catalog-filters:not([hidden]){display:contents}
+ body .catalog-layout .filters-panel{grid-column:1;grid-row:1 / span 3;padding:16px}
+ body .catalog-layout .filters-grid{grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
+ body .catalog-layout .filters-panel summary>span{display:none}
+ body .catalog-layout .filter-bottom{flex-direction:column;align-items:stretch;gap:12px;margin-top:16px}
+ body .catalog-layout .results-toolbar{grid-column:2;grid-row:1;margin:0 0 16px}
+ body .catalog-layout .achievement-grid{grid-column:2;grid-row:2;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .catalog-layout .empty-state{grid-column:2;grid-row:3}
+ .catalog-layout noscript{grid-column:1 / -1}
+}
+@media(max-width:1050px){body .admin-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:700px){body .admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}body .achievement-card{padding:20px}}
+@media(max-width:400px){body .achievement-card{padding:16px}body .admin-stats .stat{padding:12px}}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+
+/* Adapt to the collection width, not the device label. */
+.catalogue{container:collection / inline-size}
+html{scroll-padding-top:calc(var(--navigation-height,90px) + 16px)}
+body .site-header{position:sticky;top:0;z-index:50;background:var(--bg-secondary);padding-top:env(safe-area-inset-top);box-shadow:0 3px 12px #0003}
+.catalog-layout{overflow-anchor:none}
+.collection-search input{width:100%;min-width:0;padding:10px;border:1px solid var(--line);border-radius:8px;font:inherit}
+body .card-conditions{position:relative;z-index:1;margin-top:12px;font-size:13px;color:var(--text-secondary)}
+body .card-conditions summary{font-size:13px;color:var(--text-primary);padding:6px 0;min-height:44px}
+body .card-conditions p{white-space:pre-line;overflow-wrap:anywhere}
+body .card-open{position:relative;z-index:1;min-height:44px;display:inline-flex;align-items:center}
+body .binary-progress{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+[data-progress-state]{font-size:13px;color:var(--color-xp)}
+body .collection-summary .ascension{padding:20px;margin-bottom:20px}
+body .collection-summary .ascension h2{font-size:18px}
+body .collection-summary .ascension progress{margin:8px 0}
+body .collection-summary .ascension>.form-help{display:none}
+/* Scoped administrative forms: shared field metrics, no global input overrides. */
+body .discord-role-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr)) auto;align-items:end;gap:var(--vh-space-2);padding:var(--vh-space-2) 0;border-bottom:1px solid var(--line)}
+.discord-role-form label,.discord-role-identity{display:flex;flex-direction:column;gap:var(--vh-space-1);min-width:0;font-size:13px;color:var(--text-secondary)}
+body .discord-role-form input:not([type=hidden]),body .achievement-filter-search input{box-sizing:border-box;width:100%;max-width:100%;min-width:0;height:48px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;background:var(--bg-secondary);color:var(--text-primary);font:inherit}
+.discord-role-identity code{display:flex;align-items:center;min-height:48px;overflow-wrap:anywhere;font-size:13px}
+.discord-role-actions{display:flex;align-items:center;gap:var(--vh-space-1);flex-wrap:wrap}
+body .discord-role-actions button{margin:0;min-height:48px;padding:10px 16px;line-height:1.4}
+body .discord-role-add{margin-top:var(--vh-space-2);padding-top:var(--vh-space-2);border-bottom:0}
+body .achievement-filters{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--vh-space-2);margin-bottom:var(--vh-space-3)}
+.achievement-filter-selects{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--vh-space-2)}
+body .achievement-filters label{display:flex;flex-direction:column;gap:var(--vh-space-1);min-width:0;font-size:13px;color:var(--text-secondary)}
+.achievement-filter-selects select{min-height:48px}
+.achievement-filter-actions{display:flex;align-items:center;justify-content:space-between;gap:var(--vh-space-2);flex-wrap:wrap}
+.achievement-filter-actions p{margin:0;font-size:13px;color:var(--text-secondary)}
+.achievement-filter-search{padding-top:var(--vh-space-2);border-top:1px solid var(--line)}
+@media(min-width:701px) and (max-width:1000px){.discord-role-form:not(.discord-role-add) .discord-role-actions{grid-column:1/-1}}
+@media(max-width:700px){
+ body .discord-role-form,.achievement-filter-selects{grid-template-columns:minmax(0,1fr)}
+ .discord-role-add .discord-role-actions,body .discord-role-add .primary-button{width:100%}
+ body .discord-role-form input:not([type=hidden]),body .achievement-filter-search input{font-size:16px}
+}
+@container collection (min-width:1040px){
+ body .catalog-layout .filters-panel{position:sticky;top:calc(var(--navigation-height,90px) + 16px);max-height:calc(100dvh - var(--navigation-height,90px) - 32px);overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
+ body .catalog-layout .achievement-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr))}
+}
+@container collection (max-width:1039px){body .catalog-layout .achievement-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,310px),1fr))}}
+@container collection (max-width:649px){body .catalog-layout .achievement-grid{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:700px){body .header-inner{padding-block:10px;gap:8px}body .header-inner nav{padding:0}}
+@keyframes progress-confirmation{from{box-shadow:0 0 0 2px var(--color-xp)}to{box-shadow:var(--vh-shadow)}}
+@media(prefers-reduced-motion:no-preference){.progress-confirmed{animation:progress-confirmation .45s ease-out}}
+.collection-status{font-size:13px;color:var(--text-secondary);white-space:nowrap}
+@media(max-width:650px){body .catalogue>.section-heading{flex-wrap:wrap}.collection-status{width:100%}}

@@ -6,6 +6,45 @@ use App\Models\AdminRepository;
 final class AchievementService
 {
     public function __construct(private PDO $pdo) {}
+    public const STATUS_OPTIONS = [
+        'publication_status' => ['draft'=>'Brouillon', 'published'=>'Publié'],
+        'verification_status' => ['unverified'=>'À confirmer', 'pending'=>'En attente', 'verified'=>'Confirmé', 'rejected'=>'Rejeté'],
+    ];
+
+    /** Narrow update: never overwrite rewards, associations or editorial content. */
+    public function quickUpdate(array $data, int $actor): array
+    {
+        $id = Input::id($data['id'] ?? null);
+        $field = Input::choice($data, 'field', array_keys(self::STATUS_OPTIONS));
+        $value = Input::choice($data, 'value', array_keys(self::STATUS_OPTIONS[$field]));
+        $previous = Input::choice($data, 'previous', array_keys(self::STATUS_OPTIONS[$field]));
+        if (array_diff(array_keys($data), ['id','field','value','previous','csrf','action'])) throw new ValidationException('Champs non autorisés.');
+        $this->pdo->beginTransaction();
+        try {
+            $query = $this->pdo->prepare('SELECT * FROM achievements WHERE id = ? FOR UPDATE');
+            $query->execute([$id]); $before = $query->fetch();
+            if (!$before || $before['archived_at'] !== null) throw new ValidationException('Succès indisponible. Rechargez la liste.');
+            if ($before[$field] !== $previous) throw new ValidationException('Ce statut a été modifié entre-temps. Rechargez la liste avant de réessayer.');
+            if ($value !== $previous) {
+                // $field is strictly allowlisted above, never taken directly from the request.
+                $sql = "UPDATE achievements SET $field = ?, updated_at = CURRENT_TIMESTAMP";
+                $params = [$value];
+                if ($field === 'verification_status') {
+                    $sql .= ', verified_by = ?, verified_at = ?';
+                    $params[] = $value === 'verified' ? $actor : null;
+                    $params[] = $value === 'verified' ? gmdate('Y-m-d H:i:s') : null;
+                }
+                $this->pdo->prepare($sql.' WHERE id = ?')->execute([...$params, $id]);
+                Audit::record($this->pdo,$actor,'achievement.update','achievement',$id,[$field=>$previous],[$field=>$value]);
+                if ($field === 'publication_status') Audit::record($this->pdo,$actor,$value === 'published' ? 'achievement.publish' : 'achievement.unpublish','achievement',$id,[$field=>$previous],[$field=>$value]);
+            }
+            $this->pdo->commit();
+            return ['id'=>$id, 'field'=>$field, 'value'=>$value];
+        } catch (\Throwable $e) {
+            if ($this->pdo->inTransaction()) $this->pdo->rollBack();
+            throw $e;
+        }
+    }
     public function save(array $data, ?array $file, ?int $actor): int
     {
         $id = empty($data['id']) ? null : Input::id($data['id']);
@@ -72,8 +111,8 @@ final class AchievementService
             'category_id'=>empty($data['category_id']) ? null : Input::id($data['category_id']),
             'rarity'=>Input::text($data,'rarity',50) ?: null,
             'secret_type'=>Input::choice($data,'secret_type',['normal','secret']),
-            'verification_status'=>Input::choice($data,'verification_status',['unverified','pending','verified','rejected']),
-            'publication_status'=>Input::choice($data,'publication_status',['draft','published']),
+            'verification_status'=>Input::choice($data,'verification_status',array_keys(self::STATUS_OPTIONS['verification_status'])),
+            'publication_status'=>Input::choice($data,'publication_status',array_keys(self::STATUS_OPTIONS['publication_status'])),
             'source_url'=>Input::text($data,'source_url',2048) ?: null,
             'title_rewards_known'=>isset($data['title_rewards_known']) ? 1 : 0,
         ];

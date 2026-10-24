@@ -47,7 +47,7 @@ final class PersonalService {
     public function overview(int $userId): array {
         $repository=new \App\Models\AchievementRepository($this->pdo);
         $items=$repository->all();$rows=$this->rows($userId);$byId=array_column($rows,null,'achievement_id');
-        $categories=[];foreach($repository->categories() as $category)$categories[(string)$category['id']]=['name'=>$category['name'],'color'=>$category['color'],'total'=>0,'obtained'=>0];
+        $categories=[];foreach($repository->categories() as $category)$categories[(string)$category['id']]=['id'=>$category['id'],'slug'=>$category['slug'],'name'=>$category['name'],'color'=>$category['color'],'total'=>0,'obtained'=>0];
         $done=[];
         foreach($items as $item){
             $key=(string)($item['category_id']??'');

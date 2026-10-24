@@ -5,6 +5,17 @@ use PDO;
 final class AdminRepository
 {
     public function __construct(private PDO $pdo) {}
+    public function statistics(): array
+    {
+        $items = $this->achievements();
+        $active = array_filter($items,fn($a)=>$a['archived_at'] === null);
+        return [count($items), count(array_filter($active,fn($a)=>$a['publication_status']==='published')),
+            count(array_filter($active,fn($a)=>$a['publication_status']==='draft')),
+            count(array_filter($active,fn($a)=>$a['secret_type']==='secret')),
+            count(array_filter($active,fn($a)=>!\App\Services\CatalogService::rewardsKnown($a))),
+            (int)$this->pdo->query('SELECT COUNT(*) FROM categories WHERE archived_at IS NULL')->fetchColumn(),
+            (int)$this->pdo->query('SELECT COUNT(*) FROM titles')->fetchColumn()];
+    }
     public function achievements(): array
     {
         return $this->pdo->query('SELECT a.*, c.name AS category FROM achievements a LEFT JOIN categories c ON c.id = a.category_id ORDER BY a.updated_at DESC, a.id DESC')->fetchAll();

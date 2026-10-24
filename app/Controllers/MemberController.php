@@ -36,7 +36,12 @@ final class MemberController {
                 } else {http_response_code(404);return;}
                 if ($path==='/progression' && ($_SERVER['HTTP_ACCEPT']??'')==='application/json') {
                     header('Content-Type: application/json');
-                    echo json_encode(['ok'=>true,'achievement_id'=>(int)$_POST['achievement_id'],'progress'=>$action]);return;
+                    $overview=$service->overview((int)$user['id']);
+                    header('Cache-Control: no-store');
+                    echo json_encode(['ok'=>true,'achievement_id'=>(int)$_POST['achievement_id'],'progress'=>$action,
+                        'obtained_at'=>$overview['personalById'][(int)$_POST['achievement_id']]['obtained_at']??null,
+                        'obtained'=>array_column(array_filter($overview['rows'],fn($r)=>$r['available']&&$r['progress']==='obtained'),'slug'),
+                        'summary'=>$overview['summary'],'rewards'=>$overview['rewardsEstimate'],'categories'=>$overview['categoriesProgress']],JSON_THROW_ON_ERROR);return;
                 }
                 $_SESSION['member_flash']='Votre suivi a été enregistré.';
                 $target='/mes-succes';

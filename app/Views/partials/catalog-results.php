@@ -14,10 +14,12 @@ if (!empty($personalPage) && $collectionFilter === 'obtained' && $visibleCount =
 }
 ?>
 <section id="catalogue" class="catalogue" aria-labelledby="results-heading">
-    <div class="section-heading"><div><p class="eyebrow">LE CODEX</p><h2 id="results-heading"><?= !empty($personalPage)?'Votre collection':'Tous les succès' ?><span class="result-pill" data-count><?= $visibleCount ?></span></h2></div><span class="section-note">Explorez. Accomplissez. Progressez.</span></div>
+    <div class="section-heading"><div><p class="eyebrow">LE CODEX</p><h2 id="results-heading"><?= !empty($personalPage)?'Votre collection':'Tous les succès' ?><span class="result-pill" data-count><?= $visibleCount ?></span></h2></div><?php if(empty($personalPage)): ?><span class="collection-status"><span data-summary="obtained"><?= $summary['obtained'] ?></span> / <span data-summary="total"><?= $summary['total'] ?></span> obtenus · <span data-summary-percent><?= e(str_replace('.',',',(string)$summary['percent'])) ?> %</span></span><?php endif; ?></div>
+    <div class="catalog-layout">
     <form id="catalog-filters" hidden>
         <details class="filters-panel" open><summary><?= icon('filter') ?> Filtres <span>Affiner votre exploration</span></summary>
             <div class="filters-grid">
+                <label class="collection-search" for="search">Rechercher <?= !empty($personalPage)?'dans ma collection':'dans le Codex' ?><input id="search" name="q" type="search" maxlength="200" placeholder="Un succès, une condition…" value="<?= e(is_string($_GET['q']??null)?$_GET['q']:'') ?>"></label>
                 <label>Type<select name="type"><option value="">Tous</option><option value="secret">Secrets</option><option value="normal">Classiques</option></select></label>
                 <label>Rareté<select name="rarity"><option value="">Toutes</option><option value="commun">Commun</option><option value="rare">Rare</option><option value="epique">Épique</option><option value="legendaire">Légendaire</option><option value="unknown">Non renseignée</option></select></label>
                 <label>Catégorie<select name="category"><option value="">Toutes les catégories</option><?php foreach ($categories as $category): ?><option value="<?= e($category['id']) ?>"><?= e($category['name']) ?></option><?php endforeach; ?></select></label>
@@ -31,4 +33,5 @@ if (!empty($personalPage) && $collectionFilter === 'obtained' && $visibleCount =
     <noscript><p class="notice">Le catalogue reste consultable. Activez JavaScript pour la recherche et les filtres dynamiques. Les déclarations de progression restent disponibles.</p></noscript>
     <div class="achievement-grid" data-grid><?php foreach ($items as $item): $personal=$personalById[$item['id']]??null; require __DIR__ . '/card.php'; endforeach; ?></div>
     <div class="empty-state neu-pressed" data-empty <?= $visibleCount ? 'hidden' : '' ?>><div class="empty-emblem"><?= icon('book') ?><span>✦</span></div><p class="eyebrow">L’AVENTURE SE PRÉPARE</p><h3 data-empty-title><?= e($emptyTitle) ?></h3><p data-empty-description><?= e($emptyDescription) ?></p><div class="empty-divider"><span></span><?= icon('spark') ?><span></span></div><span class="empty-caption">DE GRANDES QUÊTES COMMENCENT PAR UNE PREMIÈRE PAGE.</span><button type="button" class="secondary-button" data-reset hidden>Réinitialiser les filtres</button></div>
+    </div>
 </section>

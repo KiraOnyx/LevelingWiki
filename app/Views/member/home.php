@@ -2,3 +2,4 @@
 <?php require dirname(__DIR__).'/partials/ascension.php'; ?>
 <?php require dirname(__DIR__).'/partials/estimates.php'; ?>
 <div class="personal-columns"><?php require dirname(__DIR__).'/partials/category-progress.php'; require dirname(__DIR__).'/partials/recent.php'; ?></div>
+<?php require dirname(__DIR__).'/partials/mobile-install.php'; ?>

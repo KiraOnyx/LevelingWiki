@@ -6,19 +6,19 @@ $hasYggdrasil = in_array($page, ['member/home', 'catalog', 'member/achievements'
 <html lang="fr">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#0B100C">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <?php require __DIR__.'/partials/mobile-meta.php'; ?>
     <meta name="description" content="Explorez les succès de Leveling Fitness, leurs conditions de déblocage et leurs récompenses. Suivez votre progression personnelle.">
     <title><?= e($title) ?></title>
     <link rel="icon" href="/assets/images/emblem.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/vendor/neu-axentix/neu-axentix.min.css">
     <link rel="stylesheet" href="/assets/css/theme.css">
     <link rel="stylesheet" href="/assets/css/admin.css">
-    <link rel="stylesheet" href="/assets/css/valhalla.css?v=6.2">
-    <script defer src="/assets/js/interface.js?v=6.1"></script>
-    <script type="module" src="/assets/js/app.js?v=6.1"></script>
+    <link rel="stylesheet" href="/assets/css/valhalla.css?v=9.1">
+    <script defer src="/assets/js/interface.js?v=9"></script>
+    <script type="module" src="/assets/js/app.js?v=9"></script>
 </head>
-<body class="neu-dark lw-theme member-theme<?= $illustratedNotFound ? ' ginnungagap-page' : ($hasYggdrasil ? ' yggdrasil-page' : '') ?>">
+<body class="neu-dark lw-theme member-theme<?= in_array($page,['catalog','member/achievements'],true)?' collection-page':'' ?><?= $illustratedNotFound ? ' ginnungagap-page' : ($hasYggdrasil ? ' yggdrasil-page' : '') ?>">
 <a class="skip-link" href="#main">Aller au contenu</a>
 <?php require __DIR__.'/partials/navigation.php'; ?>
 <main id="main" class="page-shell" tabindex="-1">

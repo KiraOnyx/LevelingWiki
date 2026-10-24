@@ -167,3 +167,7 @@ docker compose exec web php bin/designate-owner.php --username=ArKii --confirm-o
 Le mot de passe actuel est demandé de façon masquée. Cette opération reste à effectuer par le propriétaire. Les anciens comptes locaux restent conservés mais seul le SUPER_ADMIN accède au wiki sans Discord.
 
 Renseigner `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`, `DISCORD_GUILD_ID`, `DISCORD_REDIRECT_URI`, puis ajouter les Role ID dans `/admin/settings/discord`. Consulter le [guide complet et les tests réels](docs/phase4.md). Le simulateur Discord de la suite de tests n’est jamais activé dans le Compose principal.
+
+L'ergonomie des filtres, l'édition rapide des statuts et l'audit de l'onglet Utilisateurs sont documentés dans [docs/ergonomie-administration.md](docs/ergonomie-administration.md).
+
+La navigation sticky, les collections adaptatives et le suivi sans rechargement sont décrits dans [docs/navigation-suivi-dynamique.md](docs/navigation-suivi-dynamique.md).

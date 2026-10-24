@@ -27,7 +27,7 @@ final class AdminController
             if ($method === 'POST') {
                 if (!$this->auth->validCsrf($_POST['csrf'] ?? null)) { http_response_code(403); $this->render('message',['error'=>'Formulaire expiré ou invalide. Rechargez la page avant de réessayer.']); return; }
                 try { $this->write($path); }
-                catch (ValidationException $e) { http_response_code(422); $this->read($path,$e->getMessage(),$_POST); }
+                catch (ValidationException $e) { http_response_code(422); if ($this->isQuickJson($path)) $this->json(['ok'=>false,'message'=>$e->getMessage()]); else $this->read($path === '/admin/achievements/save' && ($_POST['action'] ?? '') === 'quick' ? '/admin/achievements' : $path,$e->getMessage(),$_POST); }
                 return;
             }
             $this->read($path);
@@ -76,6 +76,12 @@ final class AdminController
             if ($this->auth->confirmPassword($this->user,$password)) throw new ValidationException('Choisissez un mot de passe différent du précédent.');
             (new UserService($this->pdo))->changePassword($actor,$password); $this->auth->logout(); $this->redirect('/connexion'); return;
         }
+        if ($path === '/admin/achievements/save' && ($_POST['action'] ?? '') === 'quick') {
+            $result = (new AchievementService($this->pdo))->quickUpdate($_POST,$actor);
+            if ($this->isQuickJson($path)) $this->json(['ok'=>true,...$result,'stats'=>$this->repository->statistics()]);
+            else $this->success('Statut enregistré.','/admin/achievements');
+            return;
+        }
         if ($path === '/admin/achievements/save') {
             $file = isset($_FILES['evidence']) && is_array($_FILES['evidence']) ? $_FILES['evidence'] : null;
             $id = (new AchievementService($this->pdo))->save($_POST,$file,$actor);
@@ -107,14 +113,11 @@ final class AdminController
         }
         if ($path === '/admin') {
             $items = $this->repository->achievements();
-            $active = array_filter($items,fn($a)=>$a['archived_at'] === null);
-            $stats = [count($items),count(array_filter($active,fn($a)=>$a['publication_status']==='published')),
-                count(array_filter($active,fn($a)=>$a['publication_status']==='draft')),count(array_filter($active,fn($a)=>$a['secret_type']==='secret')),
-                count(array_filter($active,fn($a)=>!CatalogService::rewardsKnown($a)))];
+            $stats = $this->repository->statistics();
             $this->render('dashboard',compact('items','stats','error')); return;
         }
         if ($path === '/admin/achievements' || preg_match('~^/admin/achievements/[1-9][0-9]*/(?:delete|archive|restore)$~D',$path)) {
-            $this->render('achievements',['items'=>$this->repository->achievements(),'error'=>$error]); return;
+            $this->render('achievements',['items'=>$this->repository->achievements(),'stats'=>$this->repository->statistics(),'error'=>$error]); return;
         }
         if (in_array($path,['/admin/achievements/new','/admin/achievements/save'],true) || preg_match('~^/admin/achievements/([1-9][0-9]*)/edit$~D',$path,$match)) {
             $id = isset($match[1]) ? Input::id($match[1]) : (!empty($old['id']) && is_scalar($old['id']) && ctype_digit((string)$old['id']) ? (int)$old['id'] : null);
@@ -137,6 +140,17 @@ final class AdminController
         }
         if ($path === '/admin/password') { $this->render('password',['error'=>$error]);return; }
         http_response_code(404);$this->render('message',['error'=>'Page introuvable.']);
+    }
+    private function isQuickJson(string $path): bool
+    {
+        return $path === '/admin/achievements/save' && ($_POST['action'] ?? '') === 'quick'
+            && str_contains($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json');
+    }
+    private function json(array $data): void
+    {
+        header('Content-Type: application/json; charset=utf-8');
+        header('Cache-Control: no-store');
+        echo json_encode($data,JSON_THROW_ON_ERROR);
     }
     private function confirm(): void { if (($_POST['confirm'] ?? '') !== '1') throw new ValidationException('Confirmez explicitement cette opération.'); }
     private function success(string $message, string $url): void { $_SESSION['flash']=$message; $this->redirect($url); }

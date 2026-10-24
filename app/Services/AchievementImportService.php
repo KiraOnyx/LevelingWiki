@@ -6,11 +6,6 @@ use PDO;
 
 final class AchievementImportService
 {
-    private const CATEGORIES = [
-        'Bleu'=>['bleu','#609DE8'], 'Rose'=>['rose','#DF89BA'],
-        'Jaune'=>['jaune','#E7C75A'], 'Turquoise'=>['turquoise','#62D9CA'],
-        'Vert'=>['vert','#65C66B'], 'À confirmer'=>null,
-    ];
     public array $report = ['lus'=>0,'valides'=>0,'créés'=>0,'ignorés'=>0,'erreurs'=>0,'à_créer'=>0,'détails'=>[]];
     public function __construct(private PDO $pdo) {}
 
@@ -59,7 +54,7 @@ final class AchievementImportService
                     $value = Input::text($row,$key,$max,true);
                     if ($value !== $row[$key]) throw new ValidationException('Espaces périphériques interdits : '.$key);
                 }
-                if (!array_key_exists($row['category'],self::CATEGORIES)) throw new ValidationException('Catégorie inconnue.');
+                if (CategoryIdentity::fromSource($row['category'],$row['slug']) === null) throw new ValidationException('Catégorie inconnue.');
                 if ($row['publication_status'] !== 'draft' || $row['source_url'] !== null || $row['titles'] !== []) throw new ValidationException('Brouillon, URL NULL et titres vides requis pour cette source.');
                 if (!is_array($row['rewards'])) throw new ValidationException('Récompenses invalides.');
                 $this->keys($row['rewards'], ['xp','gold','gems','keys']);
@@ -101,11 +96,11 @@ final class AchievementImportService
                     $this->report['détails'][]='Ignoré : '.$input['slug'];
                     continue;
                 }
-                $category=$input['category']; $mapping=self::CATEGORIES[$category];
+                $mapping=CategoryIdentity::fromSource($input['category'],$input['slug']); $category=$mapping[0]; $identity=$mapping[1];
                 if ($mapping !== null && !array_key_exists($category,$categories)) {
                     $q=$this->pdo->prepare('SELECT * FROM categories WHERE slug = ? OR name = ?'.($apply?' FOR UPDATE':''));
-                    $q->execute([$mapping[0],$category]); $found=$q->fetchAll();
-                    if (count($found)>1 || ($found && ($found[0]['name']!==$category || $found[0]['archived_at']!==null))) throw new ValidationException('Ligne logique '.$row['line'].' : catégorie en conflit ou archivée.');
+                    $q->execute([$category,$identity['name']]); $found=$q->fetchAll();
+                    if (count($found)>1 || ($found && (($found[0]['slug']!==$category || !in_array($found[0]['name'],[$identity['old'],$identity['name']],true)) || $found[0]['archived_at']!==null))) throw new ValidationException('Ligne logique '.$row['line'].' : catégorie en conflit ou archivée.');
                     $categories[$category]=$found ? (int)$found[0]['id'] : null;
                 }
                 $plan[]=$row;
@@ -114,15 +109,15 @@ final class AchievementImportService
             if ($apply) {
                 foreach ($categories as $name=>$id) {
                     if ($id !== null) continue;
-                    [$slug,$color]=self::CATEGORIES[$name];
-                    (new TaxonomyService($this->pdo))->save('categories',['action'=>'save','name'=>$name,'slug'=>$slug,'color'=>$color,'description'=>''],null);
+                    $slug=$name;$identity=CategoryIdentity::HISTORICAL[$slug];$color=$identity['color'];
+                    (new TaxonomyService($this->pdo))->save('categories',['action'=>'save','name'=>$identity['name'],'slug'=>$slug,'color'=>$color,'description'=>''],null);
                     // Audit::record insère aussi un ID : retrouver la catégorie par son slug.
                     $q=$this->pdo->prepare('SELECT id FROM categories WHERE slug = ?'); $q->execute([$slug]);
                     $categories[$name]=(int)$q->fetchColumn();
                 }
                 foreach ($plan as $row) {
                     $input=$row['input']; $data=$row['data'];
-                    $data['category_id']=$categories[$input['category']] ?? null;
+                    $data['category_id']=$categories[CategoryIdentity::fromSource($input['category'],$input['slug'])[0]] ?? null;
                     $id=$service->save($data,null,null);
                     Audit::record($this->pdo,null,'achievement.import','achievement',$id,null,[
                         'import_actor'=>'cli:import-achievements','source_number'=>$input['source_number'],
@@ -134,7 +129,7 @@ final class AchievementImportService
                 $this->pdo->commit();
                 $this->report['créés']=count($plan);
             }
-            $this->report['détails'][]='À confirmer → catégorie NULL ; rareté NULL ; brouillons non vérifiés ; acteur système CLI.';
+            $this->report['détails'][]='Même jour, autre monde → Régularité et séries, récompenses inconnues ; rareté NULL ; brouillons non vérifiés ; acteur système CLI.';
             return $this->report;
         } catch (\Throwable $e) {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();

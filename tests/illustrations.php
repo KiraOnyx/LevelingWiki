@@ -15,7 +15,7 @@ foreach(['ginnungagap-404','valhalla-gates','yggdrasil-background'] as $asset){
 $r=$client->request('/connexion');artCheck($r['status']===200&&!str_contains($r['body'],'yggdrasil-page')&&!str_contains($r['body'],'ginnungagap-page'),'connexion sans décor conflictuel');
 $credentials=json_decode(file_get_contents('/tmp/levelingwiki-test-admin.json'),true);
 artCheck($client->login($credentials['username'],$credentials['password'])['status']===303,'session isolée pour inspection des vues');
-foreach(['/','/succes','/mes-succes','/profil'] as $route){$r=$client->request($route);artCheck($r['status']===200&&str_contains($r['body'],'member-theme yggdrasil-page'),'décor membre limité : '.$route);}
+foreach(['/','/succes','/mes-succes','/profil'] as $route){$r=$client->request($route);artCheck($r['status']===200&&(bool)preg_match('/<body class="[^"]*member-theme[^"]*yggdrasil-page/', $r['body']),'décor membre limité : '.$route);}
 $r=$client->request('/');artCheck(str_contains($r['body'],'Bienvenue, ')&&str_contains($r['body'],'Explorer le Codex')&&str_contains($r['body'],'Voir les succès manquants')&&str_contains($r['body'],'Votre ascension'),'bannière et progression conservées');
 $r=$client->request('/admin');artCheck($r['status']===200&&!str_contains($r['body'],'yggdrasil-page'),'administration inchangée');
 $r=$client->request('/progression',['action'=>'obtained']);artCheck($r['status']===403&&!str_contains($r['body'],'ginnungagap-page'),'erreur CSRF conserve son statut et sa vue');
