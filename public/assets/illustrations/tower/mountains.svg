@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" fill="none">
+<!-- Original LevelingWiki artwork: three static depth planes, no third-party assets. -->
+<defs><linearGradient id="far" x2="0" y2="1"><stop stop-color="#364764"/><stop offset="1" stop-color="#101725"/></linearGradient><linearGradient id="near" x2="0" y2="1"><stop stop-color="#17273d"/><stop offset="1" stop-color="#0b121e"/></linearGradient></defs>
+<path d="M0 440 69 378 113 404 209 242 259 299 309 195 399 337 469 305 560 424 661 333 730 366 838 207 894 276 958 188 1045 344 1110 303 1200 420v480H0Z" fill="url(#far)" opacity=".6"/>
+<path d="m113 404 96-162-12 102-29 17Zm146-105 50-104-6 77-22 5ZM730 366l108-159-23 113-38 9Zm164-90 64-88-9 74-34-7Z" fill="#8397bc" opacity=".13"/>
+<path d="M0 541 105 445 147 466 246 376 312 468 363 449 448 584 552 505 627 567 716 473 787 506 878 365 921 454 985 418 1092 555 1200 461v439H0Z" fill="url(#near)"/>
+<path d="M0 713 96 659 145 687 216 592 289 679 347 636 435 772 564 699 653 754 720 687 795 711 875 613 963 699 1080 623 1200 737v163H0Z" fill="#0c1422"/>
+</svg>

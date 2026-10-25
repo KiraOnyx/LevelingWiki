@@ -1,0 +1,39 @@
+/* Phase A: additive experimental renderer; original geometry and 2D artwork are unchanged. */
+.tower-render-controls{padding:4px 16px 14px;border-bottom:1px solid #333d50;display:grid;gap:7px}
+.tower-render-controls label{font-size:10px;color:#bfc6d9}
+.tower-render-controls select{width:100%;min-width:0;min-height:44px;padding:8px;font-size:11px;border-radius:7px}
+.tower-render-controls small{font-size:9px;line-height:1.6;color:#9faac0}
+.tower-atmosphere{display:none;position:absolute;inset:0;pointer-events:none;overflow:clip;border-radius:inherit}
+.guild-prototype[data-renderer=relief] .tower-world{isolation:isolate;background:#0d1522;border-color:#465576}
+.guild-prototype[data-renderer=relief] .tower-atmosphere{display:block;z-index:0}
+.tower-atmosphere-frame{position:sticky;top:106px;height:calc(100svh - 106px);max-height:1100px;overflow:hidden;contain:paint}
+.tower-distant-light{position:absolute;inset:0;background:radial-gradient(ellipse at 20% 25%,#5079a435,transparent 58%),radial-gradient(ellipse at 85% 65%,#64529a30,transparent 55%),linear-gradient(180deg,#17243d90,#0d152200 70%)}
+.tower-mountains{position:absolute;inset:0;background:url('/assets/illustrations/tower/mountains.svg') center bottom/cover no-repeat;opacity:.38}
+/* Exactly two static fog planes, no blur filter, canvas, particles or animation loop. */
+.tower-fog{position:absolute;left:-8%;width:116%;height:42%;opacity:.45;background:radial-gradient(ellipse at 25% 60%,#8aa6cc20,transparent 60%),radial-gradient(ellipse at 78% 45%,#9b8bc821,transparent 58%)}
+.tower-fog-far{top:18%;transform:rotate(-9deg)}
+.tower-fog-near{bottom:0;transform:rotate(6deg);background:radial-gradient(ellipse at 65% 65%,#8da4d62e,transparent 65%),linear-gradient(0deg,#2c3c5938,transparent)}
+.guild-prototype[data-renderer=relief] .tower-sky,.guild-prototype[data-renderer=relief] .tower-welcome{position:relative;z-index:1}
+.guild-prototype[data-renderer=relief] .tower-stage{z-index:1}
+.guild-prototype[data-renderer=relief] .floor-architecture{filter:none}
+.guild-prototype[data-renderer=relief] .floor-medallion{background:radial-gradient(circle at 30% 20%,#566781,#18273e 75%);border-color:#9bafca;outline-color:#17263c;box-shadow:inset 2px 2px 3px #b5c8df33,2px 5px 6px #020817a0}
+.guild-prototype[data-renderer=relief] .tower-reward{background:linear-gradient(130deg,#1c2838fa,#131b2bfa)}
+.guild-prototype[data-renderer=relief] .tower-welcome{background:linear-gradient(180deg,transparent,#0d1522 75%)}
+.guild-prototype[data-effects=lite] .tower-mountains{opacity:.24}
+.guild-prototype[data-effects=lite] .tower-fog-near{display:none}
+.guild-prototype[data-effects=lite] .tower-fog-far{opacity:.35;transform:none}
+.guild-prototype[data-effects=off] .tower-atmosphere{display:none}
+.guild-prototype[data-effects=off][data-renderer=relief] .tower-world{background:#0d1522}
+@media(max-width:600px){
+ .tower-render-controls{padding:4px 12px 12px;gap:5px}
+ .tower-render-controls select{font-size:12px;min-height:38px}
+ .tower-navigation[open]{max-height:calc(100svh - var(--tower-nav-top,90px) - 16px);overflow-y:auto}
+ .tower-navigation nav{max-height:none;overflow:visible}
+ .tower-atmosphere-frame{top:147px;height:calc(100svh - 147px)}
+ .tower-mountains{background-position:40% bottom}
+}
+@media(prefers-reduced-motion:reduce){
+ .tower-fog-near{display:none}
+ .tower-fog-far{opacity:.3;transform:none}
+}
+@media(forced-colors:active){.tower-atmosphere{display:none!important}}
