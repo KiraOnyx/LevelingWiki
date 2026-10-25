@@ -9,11 +9,11 @@ foreach(['/connexion','/admin/login','/owner','/super-admin','/login-admin','/me
 $r=$anonymous->request($path);vcheck($r['status']===200&&str_contains(implode(' ',$r['headers']),'noindex, nofollow, noarchive'),'formulaire privé non indexable');vcheck(!str_contains($r['body'],$path)&&!str_contains($r['body'],'Se connecter avec Discord'),'formulaire privé sans chemin ni connexion Discord');
 seedDiscordRoles($p);$member=discordLogin('100000000000000061',['200000000000000001']);$other=discordLogin('100000000000000062',['200000000000000001']);
 vcheck($member->request($path)['status']===404,'session Discord exclue de la connexion propriétaire');
-foreach(['/','/succes','/mes-succes','/profil'] as $route){$r=$member->request($route);vcheck($r['status']===200&&!str_contains($r['body'],'Mes tâches')&&!str_contains($r['body'],$path),'navigation binaire et confidentielle : '.$route);}
-$emptyCollection=$member->request('/mes-succes?progress=obtained')['body'];
+foreach(['/','/succes','/succes','/profil'] as $route){$r=$member->request($route);vcheck($r['status']===200&&!str_contains($r['body'],'Mes tâches')&&!str_contains($r['body'],$path),'navigation binaire et confidentielle : '.$route);}
+$emptyCollection=$member->request('/succes?progress=obtained')['body'];
 vcheck(str_contains($emptyCollection,'data-count>0</span>') && str_contains($emptyCollection,'data-empty >') && str_contains($emptyCollection,'Votre légende commence ici.'),'collection vide cohérente sans JavaScript');
 vcheck(str_contains($emptyCollection,'data-collection-tab="obtained" aria-current="page"'),'onglet actif accessible dès le rendu serveur');
-$remainingCollection=$member->request('/mes-succes?progress=remaining')['body'];
+$remainingCollection=$member->request('/succes?progress=remaining')['body'];
 vcheck(str_contains($remainingCollection,'data-count>4</span>') && str_contains($remainingCollection,'data-empty hidden'),'collection restante cohérente sans JavaScript');
 $u=(int)$p->query("SELECT user_id FROM discord_identities WHERE discord_user_id='100000000000000061'")->fetchColumn();$id=(int)$p->query("SELECT id FROM achievements WHERE slug='elan-du-matin-test'")->fetchColumn();
 $post=fn(array $data)=>$member->request('/progression',['csrf'=>$member->token('/profil'),'achievement_id'=>$id,...$data],null,['Accept: application/json']);
@@ -21,7 +21,7 @@ vcheck($post(['action'=>'obtained'])['status']===200,'déclaration directe obten
 vcheck($view['summary']['obtained']===1&&$view['summary']['remaining']===3&&$view['summary']['percent']===25.0,'statistiques personnelles cohérentes');
 vcheck((string)$view['rewardsEstimate']['xp']['known']==='2500'&&(int)$view['rewardsEstimate']['xp']['unknown']===0,'récompenses cumulées exactes');
 vcheck(array_sum(array_column($view['categoriesProgress'],'obtained'))===1,'progression réelle par catégorie');
-vcheck(str_contains($member->request('/mes-succes?progress=obtained')['body'],'Déclaré obtenu le'),'date de déclaration présentée');
+vcheck(str_contains($member->request('/succes?progress=obtained')['body'],'Déclaré obtenu le'),'date de déclaration présentée');
 vcheck($post(['action'=>'not_started'])['status']===422,'annulation exige confirmation serveur');
 vcheck($post(['action'=>'not_started','confirm'=>'1'])['status']===200&&$service->overview($u)['summary']['obtained']===0,'annulation confirmée met à jour les statistiques');
 foreach(['accept','complete','abandon','resume','in_progress'] as $action)vcheck($post(['action'=>$action])['status']===422,'ancienne action refusée : '.$action);

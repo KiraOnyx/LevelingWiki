@@ -5,7 +5,7 @@ if(PHP_SAPI!=='cli'||getenv('APP_ENV')!=='test'||getenv('DB_DATABASE')!=='leveli
 function check5(bool $ok,string $label):void{if(!$ok)throw new RuntimeException($label);echo "OK : $label\n";}
 $p=App\Services\Database::connect();seedDiscordRoles($p);
 $id='100000000000000051';$roles=['200000000000000001'];$member=discordLogin($id,$roles);$other=discordLogin('100000000000000052',$roles);
-foreach(['/','/succes','/mes-succes','/profil'] as $path){$r=$member->request($path);check5($r['status']===200,'page Valhalla '.$path);check5(substr_count($r['body'],'type="search"')===(in_array($path,['/succes','/mes-succes'],true)?1:0),'recherche unique '.$path);check5(!str_contains($r['body'],'href="/admin"'),'administration masquée aux membres '.$path);}
+foreach(['/','/succes','/succes','/profil'] as $path){$r=$member->request($path);check5($r['status']===200,'page Valhalla '.$path);check5(substr_count($r['body'],'type="search"')===(in_array($path,['/succes','/succes'],true)?1:0),'recherche unique '.$path);check5(!str_contains($r['body'],'href="/admin"'),'administration masquée aux membres '.$path);}
 $achievement=(int)$p->query("SELECT id FROM achievements WHERE publication_status='published' AND archived_at IS NULL LIMIT 1")->fetchColumn();
 check5($achievement>0,'fixture publiée disponible');
 $csrf=$member->token('/profil');$r=$member->request('/progression',['csrf'=>$csrf,'achievement_id'=>$achievement,'action'=>'obtained'],null,['Accept: application/json']);
@@ -17,5 +17,5 @@ $member->request('/deconnexion',['csrf'=>$member->token('/profil')]);
 $client=new HttpTestClient();check5(discordFlow($client,$id,[])['status']===403,'perte du rôle refuse la connexion');
 $member=discordLogin($id,$roles);$q->execute([$id,$achievement]);check5($q->fetchColumn()==='obtained','récupération du rôle conserve la progression');
 $q=$p->prepare('SELECT COUNT(*) FROM discord_identities WHERE discord_user_id=?');$q->execute([$id]);check5((int)$q->fetchColumn()===1,'reconnexion sans duplication');
-check5(str_contains($member->request('/mes-succes')['body'],'Marquer comme obtenu'),'état restauré dans le formulaire');
+check5(str_contains($member->request('/succes')['body'],'Marquer comme obtenu'),'état restauré dans le formulaire');
 check5($member->request('/admin')['status']===403,'administration protégée côté serveur');

@@ -54,3 +54,5 @@
 .tower-marker strong,.tower-marker small,.tower-ranking li a,.tower-navigation nav a{overflow-wrap:anywhere;min-width:0}
 .floor-medallion.long-level strong{font-size:12px;line-height:1.1;overflow-wrap:anywhere;max-width:100%}
 @media(min-width:851px){.tower-sidebar{top:calc(var(--tower-header-height,105px) + 20px);max-height:calc(100svh - var(--tower-header-height,105px) - 40px)}}
+
+.tower-catalog-reward{border-top:1px solid #ffffff18;padding-top:12px;margin-top:12px;overflow-wrap:anywhere}.tower-catalog-reward>svg{width:20px;height:20px;margin-right:8px;vertical-align:middle}.tower-catalog-reward strong{font-size:16px}.tower-catalog-reward .tower-kind{display:block;width:fit-content;margin-top:6px}

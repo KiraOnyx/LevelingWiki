@@ -24,6 +24,7 @@ export function filterItems(items, filters = {}, obtained = new Set(), states = 
     return matches.sort((a, b) => {
         const byName = collator.compare(a.name, b.name) || collator.compare(a.slug, b.slug);
         if (filters.sort === 'name-desc') return -byName;
+        if (filters.sort === 'obtained-desc') return (b.obtained_at || '').localeCompare(a.obtained_at || '') || byName;
         if (filters.sort === 'newest') return b.created_at.localeCompare(a.created_at) || byName;
         const sort = {'xp-asc':['reward_xp',1], 'xp-desc':['reward_xp',-1], 'gold-desc':['reward_gold',-1]}[filters.sort];
         if (!sort) return byName;

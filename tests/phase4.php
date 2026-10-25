@@ -72,7 +72,7 @@ verify4(memberPost($member,'/progression/import-local',['slugs'=>'[]'])['status'
 $member->request('/deconnexion',['csrf'=>$member->token('/profil')]);$member=discordLogin('100000000000000020',['200000000000000001']);
 verify4($state()['progress']==='obtained','progression conservée à la reconnexion');
 $pdo->exec("UPDATE achievements SET publication_status='draft' WHERE id=$id");
-verify4(!str_contains($member->request('/mes-succes')['body'],'Élan du matin'),'brouillon masqué dans le suivi personnel');
+verify4(!str_contains($member->request('/succes')['body'],'Élan du matin'),'brouillon masqué dans le suivi personnel');
 verify4(memberPost($other,'/progression',['achievement_id'=>$id,'action'=>'obtained'])['status']===422,'déclaration de brouillon refusée');
 $pdo->exec("UPDATE achievements SET publication_status='published',archived_at=CURRENT_TIMESTAMP WHERE id=$id");
 verify4(memberPost($other,'/progression',['achievement_id'=>$id,'action'=>'obtained'])['status']===422,'archive non déclarable');

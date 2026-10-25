@@ -1,2 +1,6 @@
-<div class="page-heading codex-heading"><p class="eyebrow">LA BIBLIOTHÈQUE DES EXPLOITS</p><h1>Le Codex</h1><p>Découvrez les succès, leurs conditions et les récits qui les accompagnent.</p></div>
+<?php $collectionFilter=($_GET['progress']??'')==='obtained'?'obtained':'remaining'; $displayMode=($_GET['view']??'')==='list'?'list':'cards'; ?>
+<div class="page-heading codex-heading"><p class="eyebrow">LA BIBLIOTHÈQUE DES EXPLOITS</p><h1>Le Codex</h1><p>Découvrez les succès et retrouvez votre progression personnelle.</p></div>
+<div data-personal-dashboard class="collection-summary"><?php require __DIR__.'/partials/ascension.php'; ?></div>
+<nav class="collection-tabs" aria-label="Ma collection"><?php foreach(['remaining'=>'À débloquer','obtained'=>'Obtenus'] as $state=>$label): ?><a href="/succes?progress=<?= $state ?>&amp;view=<?= $displayMode ?>" data-collection-tab="<?= $state ?>" <?= $collectionFilter===$state?'aria-current="page"':'' ?>><?= $label ?> <span data-summary="<?= $state ?>"><?= $summary[$state] ?></span></a><?php endforeach; ?></nav>
+<nav class="collection-tabs display-tabs" aria-label="Affichage du Codex"><?php foreach(['cards'=>'Cartes','list'=>'Liste'] as $mode=>$label): ?><a href="/succes?progress=<?= $collectionFilter ?>&amp;view=<?= $mode ?>" data-display-mode="<?= $mode ?>" <?= $displayMode===$mode?'aria-current="page"':'' ?>><?= $label ?></a><?php endforeach; ?></nav>
 <?php require __DIR__.'/partials/catalog-results.php'; ?>

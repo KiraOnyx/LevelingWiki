@@ -11,7 +11,7 @@ final class GuildTowerController
             $pdo=Database::connect();$auth=new Auth($pdo);$user=MemberController::requireUser($auth);if(!$user)return;
             $csrf=$auth->csrf();$repository=new GuildDivisionRepository($pdo);
             $divisions=array_map(static fn(array $d):array=>['id'=>'guild-'.$d['id'],'name'=>$d['name'],'short'=>$d['short_name'],'level'=>(int)$d['level'],'color'=>'custom','accent'=>$d['color']],$repository->all());
-            $levels=require dirname(__DIR__,2).'/config/guild-tower.php';
+            $levels=(new \App\Models\GuildCatalogRepository($pdo))->publicLevels();
             $fixture=['levels'=>$levels,'divisions'=>$divisions];$isPrototype=false;
             $renderer=($_GET['view']??'')==='flat'?'flat':'relief';$title='Tour de guilde — LevelingWiki';$page='tower/prototype';$items=[];
             require_once dirname(__DIR__).'/Views/helpers.php';require dirname(__DIR__).'/Views/layout.php';

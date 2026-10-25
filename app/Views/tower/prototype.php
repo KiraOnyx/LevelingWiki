@@ -1,5 +1,6 @@
 <?php
 $leader = $divisions ? max(array_column($divisions, 'level')) : 0;
+$renderLevels=array_column($levels,null,'level') + [1=>['level'=>1,'structural'=>true]];ksort($renderLevels,SORT_NUMERIC);
 $isPrototype = $isPrototype ?? true;
 $kindLabels = ['personal'=>'Personnelle', 'collective'=>'Collective', 'unconfirmed'=>'À préciser', 'unknown'=>'Inconnue'];
 ?>
@@ -25,7 +26,7 @@ $kindLabels = ['personal'=>'Personnelle', 'collective'=>'Collective', 'unconfirm
                     <small data-render-info>Architecture SVG · interactions HTML</small>
                 </div>
                 <nav aria-label="Navigation de la tour">
-                    <a href="#tower-top"><span>↑</span> Le sommet <small>Niv. <?= max(array_column($levels,'level')) ?></small></a>
+                    <a href="#tower-top"><span>↑</span> Le sommet <small>Niv. <?= max([1,...array_column($levels,'level'),...array_column($divisions,'level')]) ?></small></a>
                     <p>REJOINDRE UNE DIVISION</p>
                     <?php foreach ($divisions as $division): ?>
                     <a class="division-<?= e($division['color']) ?>" data-division-color="<?= e($division['accent']??'') ?>" href="#division-<?= e($division['id']) ?>"><i></i><?= e($division['name']) ?><small><?= $division['level'] ?></small></a>
@@ -51,21 +52,26 @@ $kindLabels = ['personal'=>'Personnelle', 'collective'=>'Collective', 'unconfirm
                 <?php require __DIR__.'/architecture.php'; require __DIR__.'/architecture-relief.php'; ?>
                 <div id="tower-top" class="tower-crown" tabindex="-1"><svg viewBox="0 0 320 210" aria-hidden="true"><use data-architecture="crown" href="#tower-crown<?= $renderer==='relief'?'-relief':'' ?>"/></svg></div>
                 <div class="tower-floors">
-                    <?php foreach (array_reverse($levels) as $index=>$level): ?>
+                    <?php foreach (array_reverse($renderLevels) as $index=>$level): ?>
                     <section class="tower-floor <?= $index % 2 ? 'reward-left' : 'reward-right' ?>" data-level="<?= $level['level'] ?>" id="level-<?= $level['level'] ?>" tabindex="-1" aria-label="Palier de niveau <?= $level['level'] ?>">
                         <svg class="floor-architecture" viewBox="0 0 320 320" preserveAspectRatio="none" aria-hidden="true"><use data-architecture="floor" href="#tower-floor<?= $renderer==='relief'?'-relief':'' ?>"/></svg>
                         <div class="floor-medallion"><small>NIV.</small><strong><?= $level['level'] ?></strong></div>
-                        <article class="tower-reward" data-kind="<?= e($level['kind']) ?>">
+                        <?php if(empty($level['structural'])): ?><article class="tower-reward" data-kind="<?= e($level['kind']) ?>">
                             <div class="tower-reward-top"><span class="tower-reward-icon"><?= icon($level['icon']) ?></span><span class="tower-overline">PALIER <?= $level['level'] ?></span><span class="reward-availability"><?= icon('lock') ?></span></div>
                             <h2><?= e($level['label']) ?></h2>
+                            <?php if(isset($level['rewards'])): ?>
+                            <?php if($level['description']!==''): ?><p><?= e($level['description']) ?></p><?php endif; ?>
+                            <?php foreach($level['rewards'] as $reward): ?><div class="tower-catalog-reward" data-kind="<?= e($reward['kind']) ?>"><?= icon($reward['icon']) ?><strong><?= e($reward['label']) ?></strong><span class="tower-kind"><?= e($kindLabels[$reward['kind']]) ?></span><?php if($reward['description']!==''): ?><p><?= e($reward['description']) ?></p><?php endif; ?></div><?php endforeach; ?>
+                            <?php if(!$level['rewards']): ?><p>Aucune récompense publiée.</p><?php endif; ?>
+                            <?php else: ?>
                             <span class="tower-kind"><?= e($kindLabels[$level['kind']]) ?></span>
                             <?php if ($level['kind']==='unconfirmed'): ?><p>Catégorie de clé<?= $level['level']===30?' et distribution':'' ?> à confirmer.</p>
                             <?php elseif ($level['kind']==='unknown'): ?><p>Ce palier garde encore ses secrets.</p>
                             <?php elseif ($level['kind']==='collective'): ?><p>Capacité supplémentaire pour la division.</p>
                             <?php else: ?><p>Récompense individuelle, déclarative.</p><?php endif; ?>
-                            <button type="button" class="tower-detail-button" data-reward-detail>Voir les divisions <?= icon('arrow') ?></button>
+                            <?php endif; ?><button type="button" class="tower-detail-button" data-reward-detail>Voir les divisions <?= icon('arrow') ?></button>
                             <div class="tower-unlocks" hidden></div>
-                        </article>
+                        </article><?php endif; ?>
                     </section>
                     <?php endforeach; ?>
                 </div>

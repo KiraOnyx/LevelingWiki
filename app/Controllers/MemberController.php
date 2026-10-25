@@ -44,7 +44,7 @@ final class MemberController {
                         'summary'=>$overview['summary'],'rewards'=>$overview['rewardsEstimate'],'categories'=>$overview['categoriesProgress']],JSON_THROW_ON_ERROR);return;
                 }
                 $_SESSION['member_flash']='Votre suivi a été enregistré.';
-                $target='/mes-succes';
+                $target='/succes?progress=obtained';
                 header('Location: '.$target,true,303);return;
             }
             $data=$service->overview((int)$user['id']);

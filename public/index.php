@@ -16,6 +16,8 @@ if (App\Services\OwnerAccess::matches($path)) {
     (new App\Controllers\MemberController())->dispatch($path);
 } elseif ($path === '/tour-de-guilde') {
     (new App\Controllers\GuildTowerController())->show();
+} elseif (preg_match('#^/admin/tour-de-guilde/(paliers|types|recompenses)(/save)?$#D', $path)) {
+    (new App\Controllers\GuildCatalogController())->admin($path);
 } elseif ($path === '/admin/tour-de-guilde' || str_starts_with($path, '/admin/tour-de-guilde/')) {
     (new App\Controllers\GuildTowerController())->admin(rtrim($path, '/'));
 } elseif ($path === '/admin' || str_starts_with($path, '/admin/')) {
@@ -26,7 +28,10 @@ if (App\Services\OwnerAccess::matches($path)) {
     (new App\Controllers\TowerPrototypeController())->show();
 } elseif ($path === '/statut') {
     (new App\Controllers\StatusController())->index();
-} elseif ($path === '/mes-succes' || $path === '/succes' || $path === '/succes/') {
+} elseif ($path === '/mes-succes' || $path === '/mes-succes/') {
+    $params=$_GET; $params['progress']=($_GET['progress']??'')==='remaining'?'remaining':'obtained';
+    header('Location: /succes?'.http_build_query($params),true,302);
+} elseif ($path === '/succes' || $path === '/succes/') {
     $controller->show();
 } elseif (preg_match('~^/succes/([^/]+)$~D', $path, $match)) {
     $controller->show($match[1]);

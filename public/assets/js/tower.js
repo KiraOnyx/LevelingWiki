@@ -203,7 +203,7 @@ if (root) {
     });
     if(live && divisions.length) {
         const maximum = Math.max(...divisions.map(d=>d.level));
-        const known = Math.max(...fixture.levels.map(l=>l.level));
+        const known = Math.max(1,...fixture.levels.map(l=>l.level));
         if(maximum > known) {
             const extension = document.createElement('section');
             extension.className='tower-floor';extension.dataset.level=String(maximum);extension.id=`level-${maximum}`;extension.tabIndex=-1;

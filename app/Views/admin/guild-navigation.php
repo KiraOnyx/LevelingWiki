@@ -1,0 +1,1 @@
+<nav class="admin-nav" aria-label="Tour de guilde"><a href="/admin/tour-de-guilde">Divisions et Guild Masters</a><?php if(App\Services\PermissionService::edit($user)): ?><a href="/admin/tour-de-guilde/paliers">Paliers et récompenses</a><a href="/admin/tour-de-guilde/types">Types de récompenses</a><?php endif; ?><a href="/tour-de-guilde">Voir la tour</a></nav>

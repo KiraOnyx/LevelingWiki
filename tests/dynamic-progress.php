@@ -17,8 +17,8 @@ dynamicCheck(count($result['obtained'])===1&&$result['obtained_at']!==null,'éta
 $again=json_decode($send(['action'=>'obtained'])['body'],true);dynamicCheck($again['summary']['obtained']===1&&$again['obtained_at']===$result['obtained_at'],'double déclaration idempotente');
 dynamicCheck($send(['action'=>'not_started'])['status']===422,'annulation exige confirmation');
 $undo=json_decode($send(['action'=>'not_started','confirm'=>'1'])['body'],true);dynamicCheck($undo['summary']['obtained']===0&&$undo['obtained_at']===null,'annulation recalcule les totaux');
-dynamicCheck(str_contains($other->request('/mes-succes')['body'],'data-summary="obtained">0'),'isolation des comptes');
+dynamicCheck(str_contains($other->request('/succes')['body'],'data-summary="obtained">0'),'isolation des comptes');
 foreach(['/','/profil'] as $path)dynamicCheck(!str_contains($member->request($path)['body'],'type="search"'),'absence de recherche hors collection '.$path);
 $profile=$member->request('/profil')['body'];dynamicCheck(!str_contains($profile,'data-local-import'),'import local retiré de l’interface');
 $catalog=$member->request('/succes')['body'];dynamicCheck(str_contains($catalog,'data-inline-progress')&&!str_contains($catalog,'>Consulter'),'actions directes du Codex');
-$collection=$member->request('/mes-succes')['body'];dynamicCheck(!str_contains($collection,'estimate-panel')&&!str_contains($collection,'category-progress-grid'),'collection sans duplication du tableau de bord');
+$collection=$member->request('/succes')['body'];dynamicCheck(!str_contains($collection,'estimate-panel')&&!str_contains($collection,'category-progress-grid'),'collection sans duplication du tableau de bord');

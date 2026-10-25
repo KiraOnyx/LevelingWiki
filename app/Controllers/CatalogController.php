@@ -35,11 +35,13 @@ final class CatalogController
         $personal=null;
         if ($item) foreach ($personalRows??[] as $row) if ((int)$row['achievement_id']===(int)$item['id']) $personal=$row;
         $personalById=array_column($personalRows??[],null,'achievement_id');
-        $personalPage=parse_url($_SERVER['REQUEST_URI']??'',PHP_URL_PATH)==='/mes-succes';
+        $personalPage=!$detail;
+        foreach($items as &$catalogItem)$catalogItem['obtained_at']=$personalById[$catalogItem['id']]['obtained_at']??null;unset($catalogItem);
+        if(($_GET['sort']??(($_GET['progress']??'')==='obtained'?'obtained-desc':''))==='obtained-desc')usort($items,static fn($a,$b)=>strcmp($b['obtained_at']??'',$a['obtained_at']??'')?:strcmp($a['name'],$b['name']));
         $accountObtained=array_column(array_filter($personalRows??[],fn($r)=>$r['available'] && $r['progress']==='obtained'),'slug');
         $stats = CatalogService::stats($items);
         $title = $item ? $item['name'] . ' — LevelingWiki' : 'Archives des succès — LevelingWiki';
-        $page = $error ? 'error' : ($detail ? 'detail' : ($personalPage?'member/achievements':'catalog'));
+        $page = $error ? 'error' : ($detail ? 'detail' : 'catalog');
         if(isset($overview))extract($overview,EXTR_SKIP);
         require dirname(__DIR__) . '/Views/helpers.php';
         require dirname(__DIR__) . '/Views/layout.php';

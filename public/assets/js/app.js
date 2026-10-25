@@ -1,4 +1,4 @@
-import { filterItems } from './catalog-core.mjs?v=6';
+import { filterItems } from './catalog-core.mjs?v=7';
 const items=JSON.parse(document.querySelector('#catalog-data')?.textContent||'[]');
 const account=JSON.parse(document.querySelector('#account-progress')?.textContent||'null');
 const obtained=new Set(account?.obtained||[]);
@@ -11,7 +11,9 @@ function updateResults(){
     const scrollPosition={x:window.scrollX,y:window.scrollY};
     const data=new FormData(form);const filters={...Object.fromEntries(data),rewards:data.getAll('reward')};
     const results=filterItems(items,filters,obtained);const visible=new Set(results.map(i=>i.slug));
-    const grid=document.querySelector('[data-grid]');const cards=new Map([...grid.children].map(card=>[card.dataset.card,card]));
+    const grid=document.querySelector('[data-grid]');
+    grid.dataset.display=filters.view==='list'?'list':'cards';
+    document.querySelectorAll('[data-display-mode]').forEach(link=>{if(link.dataset.displayMode===grid.dataset.display)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});const cards=new Map([...grid.children].map(card=>[card.dataset.card,card]));
     for(const [slug,card] of cards)card.hidden=!visible.has(slug);
     for(const item of results)grid.append(cards.get(item.slug));
     document.querySelector('[data-count]').textContent=results.length;
@@ -29,21 +31,24 @@ function updateResults(){
 if(form){
     form.hidden=false;const params=new URLSearchParams(location.search);
     for(const field of form.elements){if(!field.name)continue;if(field.type==='checkbox')field.checked=params.getAll(field.name).includes(field.value);else if(params.has(field.name))field.value=params.get(field.name);}
-    if(personal)form.elements.progress.value=params.get('progress')==='remaining'?'remaining':'obtained';
+    if(personal)form.elements.progress.value=params.get('progress')==='obtained'?'obtained':'remaining';
+    if(!params.has('sort')&&form.elements.progress.value==='obtained')form.elements.sort.value='obtained-desc';
+    document.querySelectorAll('[data-display-mode]').forEach(link=>link.addEventListener('click',event=>{event.preventDefault();form.elements.view.value=link.dataset.displayMode;updateResults();}));
     const panel=document.querySelector('.filters-panel'),container=document.querySelector('.catalogue');
     let compact;
     const adaptFilters=()=>{const next=container.clientWidth<650;if(next!==compact){panel.open=!next;compact=next;}};
     adaptFilters();new ResizeObserver(adaptFilters).observe(container);
-    document.querySelectorAll('[data-collection-tab]').forEach(tab=>tab.addEventListener('click',event=>{event.preventDefault();form.elements.progress.value=tab.dataset.collectionTab;updateResults();}));
+    document.querySelectorAll('[data-collection-tab]').forEach(tab=>tab.addEventListener('click',event=>{event.preventDefault();form.elements.progress.value=tab.dataset.collectionTab;form.elements.sort.value=tab.dataset.collectionTab==='obtained'?'obtained-desc':'name-asc';updateResults();}));
     search?.addEventListener('input',()=>{clearTimeout(timer);timer=setTimeout(updateResults,250);});
     form.addEventListener('submit',e=>{e.preventDefault();clearTimeout(timer);updateResults();});
     form.addEventListener('change',()=>{clearTimeout(timer);updateResults();});
-    form.addEventListener('reset',()=>{clearTimeout(timer);if(search)search.value='';setTimeout(()=>{if(personal)form.elements.progress.value='obtained';updateResults();},0);});
+    form.addEventListener('reset',()=>{clearTimeout(timer);if(search)search.value='';setTimeout(()=>{if(personal)form.elements.progress.value='remaining';updateResults();},0);});
     document.querySelector('[data-reset]').addEventListener('click',()=>{form.reset();search?.focus();});
     updateResults();
 }
 document.addEventListener('progress-saved',event=>{
     const item=items.find(i=>Number(i.id)===event.detail.achievement_id);if(!item)return;
+    item.obtained_at=event.detail.obtained_at;
     event.detail.progress==='obtained'?obtained.add(item.slug):obtained.delete(item.slug);
     if(Array.isArray(event.detail.obtained)){obtained.clear();event.detail.obtained.forEach(slug=>obtained.add(slug));}
     const {summary,rewards,categories}=event.detail;

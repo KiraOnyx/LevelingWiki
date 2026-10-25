@@ -1,3 +1,4 @@
+<?php require __DIR__.'/guild-navigation.php'; ?>
 <header class="page-heading"><p class="eyebrow">TOUR DE GUILDE</p><h1>Divisions et Guild Masters</h1><p>Les administrateurs gèrent toutes les divisions. Les Guild Masters éditeurs peuvent uniquement changer le niveau de leurs divisions actives.</p><a class="secondary-button" href="/tour-de-guilde">Voir la tour</a></header>
 <section class="admin-panel"><h2>Divisions</h2>
 <?php if(!$divisions): ?><p>Aucune division. Créez votre première division ci-dessous.</p><?php else: ?>

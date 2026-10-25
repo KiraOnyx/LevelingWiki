@@ -14,14 +14,14 @@ $hasYggdrasil = in_array($page, ['member/home', 'catalog', 'member/achievements'
     <link rel="stylesheet" href="/assets/vendor/neu-axentix/neu-axentix.min.css">
     <link rel="stylesheet" href="/assets/css/theme.css">
     <link rel="stylesheet" href="/assets/css/admin.css">
-    <link rel="stylesheet" href="/assets/css/valhalla.css?v=11">
+    <link rel="stylesheet" href="/assets/css/valhalla.css?v=13">
     <?php if ($page === 'tower/prototype'): ?>
-    <link rel="stylesheet" href="/assets/css/tower.css?v=phase-b-1">
-    <link rel="stylesheet" href="/assets/css/tower-relief.css?v=phase-b-1">
-    <script type="module" src="/assets/js/tower.js?v=phase-b-1"></script>
+    <link rel="stylesheet" href="/assets/css/tower.css?v=phase-c-1">
+    <link rel="stylesheet" href="/assets/css/tower-relief.css?v=phase-c-1">
+    <script type="module" src="/assets/js/tower.js?v=phase-c-1"></script>
     <?php endif; ?>
     <script defer src="/assets/js/interface.js?v=9"></script>
-    <script type="module" src="/assets/js/app.js?v=9"></script>
+    <script type="module" src="/assets/js/app.js?v=10"></script>
 </head>
 <body class="neu-dark lw-theme member-theme<?= in_array($page,['catalog','member/achievements'],true)?' collection-page':'' ?><?= $illustratedNotFound ? ' ginnungagap-page' : ($hasYggdrasil ? ' yggdrasil-page' : '') ?>">
 <a class="skip-link" href="#main">Aller au contenu</a>

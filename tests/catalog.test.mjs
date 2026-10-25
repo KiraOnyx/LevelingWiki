@@ -45,3 +45,11 @@ test('obtenus et manquants restent complémentaires même après recherche', () 
     assert.equal(filterItems(items,{progress:'obtained'},done)[0].slug,'zero-test');
     assert.deepEqual(filterItems(items,{progress:'remaining',q:'elan'},done).map(i=>i.slug),['elan-du-matin-test']);
 });
+test('historique obtenu : date décroissante puis nom, sans limiter aux derniers exploits', () => {
+    const history=Array.from({length:12},(_,i)=>({...items[0],slug:`history-${i}`,name:`Exploit ${i}`,obtained_at:`2026-10-${String(i+1).padStart(2,'0')} 12:00:00`}));
+    const obtained=new Set(history.map(i=>i.slug));
+    const result=filterItems(history,{progress:'obtained',sort:'obtained-desc'},obtained);
+    assert.equal(result.length,12);assert.equal(result[0].slug,'history-11');assert.equal(result[11].slug,'history-0');
+    assert.equal(filterItems(history,{progress:'remaining'},obtained).length,0);
+    assert.equal(filterItems(history,{progress:'obtained',q:'Exploit 11'},obtained).length,1);
+});

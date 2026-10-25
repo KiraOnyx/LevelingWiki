@@ -1,0 +1,1 @@
+<nav class="admin-nav" aria-label="Administration des succès"><a href="/admin/achievements">Gestion des succès</a><?php if(App\Services\PermissionService::admin($user)): ?><a href="/admin/categories">Catégories</a><a href="/admin/titles">Titres</a><?php endif; ?><a href="/succes">Voir le Codex</a></nav>
