@@ -22,7 +22,7 @@ final class AdminRepository
     }
     public function achievement(int $id): ?array
     {
-        $query = $this->pdo->prepare('SELECT a.*, d.unlock_conditions, d.evidence_path FROM achievements a LEFT JOIN achievement_details d ON d.achievement_id = a.id WHERE a.id = ?');
+        $query = $this->pdo->prepare('SELECT a.*, d.unlock_conditions, d.evidence_path, d.guide_markdown FROM achievements a LEFT JOIN achievement_details d ON d.achievement_id = a.id WHERE a.id = ?');
         $query->execute([$id]); $item = $query->fetch();
         if (!$item) return null;
         $query = $this->pdo->prepare('SELECT title_id FROM achievement_titles WHERE achievement_id = ?');

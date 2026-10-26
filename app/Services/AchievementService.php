@@ -69,6 +69,9 @@ final class AchievementService
                 if (!$lock->fetchColumn()) throw new ValidationException('Succès introuvable.');
                 $before = (new AdminRepository($this->pdo))->achievement($id);
             }
+            $guide=array_key_exists('guide_markdown',$data)?Input::text($data,'guide_markdown',100000):($before['guide_markdown']??'');
+            $oldGuide=$before['guide_markdown']??'';
+            if(isset($data['guide_revision']) && (!is_string($data['guide_revision']) || !hash_equals(hash('sha256',$oldGuide),$data['guide_revision'])))throw new ValidationException('Le guide a été modifié entre-temps. Rechargez la fiche avant de réessayer. Votre texte est conservé ci-dessous.');
             $oldFile = $before['evidence_path'] ?? null;
             $path = $newFile ?? (isset($data['remove_evidence']) ? null : $oldFile);
             $values['verified_by'] = $values['verification_status'] === 'verified' ? $actor : null;
@@ -81,11 +84,13 @@ final class AchievementService
                 $sql = 'INSERT INTO achievements (' . implode(',', array_keys($values)) . ') VALUES (' . implode(',', array_fill(0,count($values),'?')) . ')';
                 $this->pdo->prepare($sql)->execute(array_values($values)); $id = (int) $this->pdo->lastInsertId();
             }
-            $this->pdo->prepare('INSERT INTO achievement_details (achievement_id, unlock_conditions, evidence_path) VALUES (?, ?, ?)
-                ON DUPLICATE KEY UPDATE unlock_conditions = VALUES(unlock_conditions), evidence_path = VALUES(evidence_path), updated_at = CURRENT_TIMESTAMP')->execute([$id, $conditions ?: null, $path]);
+            $this->pdo->prepare('INSERT INTO achievement_details (achievement_id, unlock_conditions, evidence_path, guide_markdown) VALUES (?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE unlock_conditions = VALUES(unlock_conditions), evidence_path = VALUES(evidence_path), guide_markdown = VALUES(guide_markdown), updated_at = CURRENT_TIMESTAMP')->execute([$id, $conditions ?: null, $path, $guide ?: null]);
             $this->pdo->prepare('DELETE FROM achievement_titles WHERE achievement_id = ?')->execute([$id]);
             foreach ($titles as $title) $this->pdo->prepare('INSERT INTO achievement_titles (achievement_id, title_id) VALUES (?, ?)')->execute([$id, $title]);
             $after = [...$values, 'unlock_conditions'=>$conditions, 'title_ids'=>$titles, 'evidence_path'=>$path];
+            if($before)unset($before['guide_markdown']);
+            if($guide!==$oldGuide)Audit::record($this->pdo,$actor,'achievement.guide','achievement',$id,['guide_sha256'=>hash('sha256',$oldGuide),'guide_bytes'=>strlen($oldGuide)],['guide_sha256'=>hash('sha256',$guide),'guide_bytes'=>strlen($guide)]);
             Audit::record($this->pdo, $actor, $before ? 'achievement.update' : 'achievement.create', 'achievement', $id, $before, $after);
             if (($before['publication_status'] ?? 'draft') !== $values['publication_status']) Audit::record($this->pdo, $actor, $values['publication_status'] === 'published' ? 'achievement.publish' : 'achievement.unpublish', 'achievement', $id, ['publication_status'=>$before['publication_status'] ?? 'draft'], ['publication_status'=>$values['publication_status']]);
             $rewardKeys = [...CatalogService::REWARDS, 'title_ids'=>'Titres', 'title_rewards_known'=>'Titres connus'];
@@ -133,6 +138,7 @@ final class AchievementService
             $lock = $this->pdo->prepare('SELECT id FROM achievements WHERE id = ? FOR UPDATE'); $lock->execute([$id]);
             if (!$lock->fetchColumn()) throw new ValidationException('Succès introuvable.');
             $before = (new AdminRepository($this->pdo))->achievement($id);
+            unset($before['guide_markdown']);
             if ($action === 'delete') $this->pdo->prepare('DELETE FROM achievements WHERE id = ?')->execute([$id]);
             else $this->pdo->prepare('UPDATE achievements SET archived_at = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')->execute([$action === 'archive' ? gmdate('Y-m-d H:i:s') : null, $id]);
             Audit::record($this->pdo, $actor, 'achievement.' . $action, 'achievement', $id, $before);

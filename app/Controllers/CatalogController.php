@@ -25,6 +25,7 @@ final class CatalogController
                 foreach ($items as $candidate) {
                     if ($candidate['slug'] === $slug) { $item = $candidate; break; }
                 }
+                if($item){$q=$pdo->prepare('SELECT guide_markdown FROM achievement_details WHERE achievement_id=?');$q->execute([$item['id']]);$guideHtml=\App\Services\GuideMarkdown::render((string)$q->fetchColumn(),array_column((new \App\Services\GuideImageService($pdo))->images((int)$item['id']),'path'));}
                 if (!$item) { http_response_code(404); $error = 'Ce succès est introuvable.'; }
             }
         } catch (Throwable) {

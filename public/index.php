@@ -20,6 +20,8 @@ if (App\Services\OwnerAccess::matches($path)) {
     (new App\Controllers\GuildCatalogController())->admin($path);
 } elseif ($path === '/admin/tour-de-guilde' || str_starts_with($path, '/admin/tour-de-guilde/')) {
     (new App\Controllers\GuildTowerController())->admin(rtrim($path, '/'));
+} elseif(in_array($path,['/admin/achievements/guide-preview','/admin/achievements/guide-image'],true)||str_starts_with($path,'/guide-media/')) {
+    (new App\Controllers\GuideController())->dispatch($path);
 } elseif ($path === '/admin' || str_starts_with($path, '/admin/')) {
     (new App\Controllers\AdminController())->dispatch(rtrim($path, '/'));
 } elseif (str_starts_with($path, '/media/') || preg_match('~^/assets/images/[^/]+\.(png|jpe?g|webp|avif)$~iD',$path)) {

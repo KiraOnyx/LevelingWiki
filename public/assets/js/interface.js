@@ -49,7 +49,9 @@ document.querySelectorAll('form[method="post"]').forEach(form => {
                 if(date){date.hidden=!done;if(done&&result.obtained_at){const time=date.querySelector('time');time.dateTime=result.obtained_at.replace(' ','T')+'Z';time.textContent=new Date(time.dateTime).toLocaleString('fr-FR',{timeZone:'UTC'})+' UTC';}}
                 card.classList.remove('progress-confirmed');requestAnimationFrame(()=>card.classList.add('progress-confirmed'));
             }
-            if(card){card.classList.toggle('is-obtained',done);card.querySelector('[data-personal-badge]').textContent=done?'✓ Obtenu':'À débloquer';}
+            const tracking=form.closest('.codex-tracking');
+            if(tracking){const date=tracking.querySelector('[data-declaration]');if(date){date.hidden=!done;if(done&&result.obtained_at){const time=date.querySelector('time');time.dateTime=result.obtained_at.replace(' ','T')+'Z';time.textContent=new Date(time.dateTime).toLocaleString('fr-FR',{timeZone:'UTC'})+' UTC';}}}
+            if(card){card.classList.toggle('is-obtained',done);const badge=card.querySelector('[data-personal-badge]');if(badge){badge.textContent=done?'✓ Obtenu':'';badge.hidden=!done;}}
             feedback.textContent='Progression enregistrée.';document.dispatchEvent(new CustomEvent('progress-saved',{detail:result}));
         }catch{feedback.classList.add('error');feedback.textContent='Enregistrement non confirmé. Vérifiez votre connexion ou reconnectez-vous, puis réessayez.';}
         finally{unlock();}

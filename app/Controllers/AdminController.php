@@ -123,11 +123,11 @@ final class AdminController
             $item = $id ? $this->repository->achievement($id) : [];
             if ($id && !$item) { http_response_code(404);$this->render('message',['error'=>'Succès introuvable.']);return; }
             if ($old) {
-                foreach (['name','slug','description','unlock_conditions','category_id','rarity','secret_type','source_url','verification_status','publication_status',...array_keys(CatalogService::REWARDS)] as $key) $item[$key] = is_string($old[$key] ?? null) ? $old[$key] : '';
+                foreach (['name','slug','description','guide_markdown','guide_revision','unlock_conditions','category_id','rarity','secret_type','source_url','verification_status','publication_status',...array_keys(CatalogService::REWARDS)] as $key) $item[$key] = is_string($old[$key] ?? null) ? $old[$key] : '';
                 $item['title_rewards_known'] = isset($old['title_rewards_known']);
                 $item['title_ids'] = is_array($old['title_ids'] ?? null) ? array_map('intval',array_filter($old['title_ids'],'is_scalar')) : [];
             }
-            $this->render('achievement-form',['item'=>$item,'categories'=>$this->repository->categories(),'titles'=>$this->repository->titles(),'error'=>$error]);return;
+            $this->render('achievement-form',['item'=>$item,'categories'=>$this->repository->categories(),'titles'=>$this->repository->titles(),'guideImages'=>$id?(new \App\Services\GuideImageService($this->pdo))->images($id):[],'error'=>$error]);return;
         }
         if ($path === '/admin/categories' || $path === '/admin/titles') {
             $kind = basename($path);$this->render('taxonomy',['kind'=>$kind,'records'=>$this->repository->$kind(),'error'=>$error]);return;

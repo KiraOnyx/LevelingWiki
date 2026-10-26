@@ -1,0 +1,50 @@
+<?php
+declare(strict_types=1);
+require dirname(__DIR__).'/app/bootstrap.php';require __DIR__.'/discord-support.php';
+use App\Services\{Database,GuideMarkdown,AchievementService,PermissionService};
+if(PHP_SAPI!=='cli'||getenv('APP_ENV')!=='test'||getenv('DB_DATABASE')!=='levelingwiki_test')exit(1);
+function guideCheck(bool $ok,string $label):void{if(!$ok)throw new RuntimeException($label);echo "OK guides : $label\n";}
+$p=Database::connect();$slug='guide-test-'.bin2hex(random_bytes(4));$migration=require dirname(__DIR__).'/database/migrations/017_achievement_guides.php';$migration($p);
+guideCheck(in_array('guide_markdown',$p->query('SHOW COLUMNS FROM achievement_details')->fetchAll(PDO::FETCH_COLUMN),true),'migration additive réexécutable');
+foreach(['editor','admin','super_admin'] as $role)guideCheck(PermissionService::member(['role'=>$role])&&PermissionService::edit(['role'=>$role]),'permission '.$role);
+guideCheck(!PermissionService::edit(['role'=>'member']),'permission MEMBER refusée');
+$md="### Préparation\n\nUne **étape** et *un conseil*.\n\n1. Faire\n2. Vérifier\n\n> Astuce";$html=GuideMarkdown::render($md);
+guideCheck(str_contains($html,'<strong>étape</strong>')&&str_contains($html,'<ol>')&&str_contains($html,'<blockquote>'),'rendu titres listes et mise en forme');
+guideCheck(GuideMarkdown::render('')==='','guide vide');
+foreach(['<script>alert(1)</script>','<img src=x onerror=alert(1)>','[attaque](javascript:alert%281%29)','[attaque](data:text/html,test)','[attaque](vbscript:test)','[attaque](//evil.example)','![attaque](data:image/png;base64,AAAA)'] as $attack){$out=GuideMarkdown::render($attack);guideCheck(!preg_match('~<(script|img)\b|href="(?:javascript|data|vbscript|//)~i',$out),'neutralisation '.$attack);}
+guideCheck(str_contains(GuideMarkdown::render('[Lien](https://example.com)'), 'rel="noopener noreferrer nofollow"'),'liens externes sécurisés');
+$path='/guide-media/'.str_repeat('a',64).'.png';guideCheck(str_contains(GuideMarkdown::render('![Exemple]('.$path.')',[$path]),'<img')&&!str_contains(GuideMarkdown::render('![Exemple]('.$path.')'),'<img'),'images limitées aux associations');
+seedDiscordRoles($p);$editor=discordLogin('100000000000000991',['200000000000000001','200000000000000002']);$admin=discordLogin('100000000000000992',['200000000000000001','200000000000000003']);$member=discordLogin('100000000000000993',['200000000000000001']);
+$data=['name'=>'Guide de test nocturne','slug'=>$slug,'description'=>'Description courte','unlock_conditions'=>'Valider entre minuit et 4 h.','secret_type'=>'secret','verification_status'=>'unverified','publication_status'=>'published','guide_markdown'=>$md,'reward_xp'=>'10','reward_gold'=>'0','reward_gems'=>'0','reward_keys'=>'0','title_rewards_known'=>'1'];
+$r=$editor->post('/admin/achievements/save',$data);guideCheck($r['status']===303,'EDITOR crée un guide');preg_match('~/([0-9]+)/edit~',$r['location'],$m);$id=(int)$m[1];$data['id']=$id;
+$read=fn()=> (new App\Models\AdminRepository($p))->achievement($id);
+guideCheck($read()['guide_markdown']===$md,'persistance du guide');
+$r=$member->request('/succes/'.$slug);guideCheck($r['status']===200&&str_contains($r['body'],'<strong>étape</strong>')&&!str_contains($r['body'],'Dernière modification'),'fiche membre avec guide sans métadonnées éditoriales');
+$data['guide_markdown']='## Nouveau guide';$r=$admin->post('/admin/achievements/save',$data);guideCheck($r['status']===303&&$read()['guide_markdown']==='## Nouveau guide','ADMIN modifie le guide');
+$r=$editor->post('/admin/achievements/save',[...$data,'guide_revision'=>hash('sha256',$md),'guide_markdown'=>'Texte concurrent']);guideCheck($r['status']===422&&str_contains($r['body'],'Texte concurrent')&&$read()['guide_markdown']==='## Nouveau guide','conflit rejeté et texte conservé');
+$without=$data;unset($without['guide_markdown']);$editor->post('/admin/achievements/save',$without);guideCheck($read()['guide_markdown']==='## Nouveau guide','ancien client préserve le guide');
+$token=$editor->token();$preview=['csrf'=>$token,'achievement_id'=>$id,'markdown'=>$md];$r=$editor->request('/admin/achievements/guide-preview',$preview);guideCheck(json_decode($r['body'],true)['html']===$html,'aperçu identique au rendu membre');
+guideCheck($editor->request('/admin/achievements/guide-preview',[...$preview,'csrf'=>'bad'])['status']===403,'CSRF aperçu');
+guideCheck($member->request('/admin/achievements/guide-preview',['csrf'=>$member->token('/profil'),'markdown'=>$md])['status']===403,'MEMBER ne peut utiliser éditeur');
+guideCheck($member->request('/admin/achievements/save',['csrf'=>$member->token('/profil'),...$data])['status']===403,'MEMBER ne peut écrire');
+$file=['field'=>'image','name'=>'guide.png','mime'=>'image/png','body'=>base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+a9b0AAAAASUVORK5CYII=')];
+$r=$editor->request('/admin/achievements/guide-image',['csrf'=>$token,'achievement_id'=>$id,'alt'=>'Écran de quête'],$file);$image=json_decode($r['body'],true);guideCheck($r['status']===200&&isset($image['path']),'upload PNG valide');$url=$image['path'];
+guideCheck($member->request($url)['status']===200,'lecture image publiée authentifiée');guideCheck((new HttpTestClient())->request($url)['status']===403,'lecture anonyme interdite');
+guideCheck($member->request('/admin/achievements/guide-image',['csrf'=>$member->token('/profil'),'achievement_id'=>$id,'alt'=>'Essai'],$file)['status']===403,'upload MEMBER refusé');
+guideCheck($editor->request('/admin/achievements/guide-image',['csrf'=>'bad','achievement_id'=>$id,'alt'=>'Essai'],$file)['status']===403,'CSRF upload');
+foreach([['name'=>'bad.svg','mime'=>'image/svg+xml','body'=>'<svg onload="alert(1)"></svg>'],['name'=>'bad.png','mime'=>'image/png','body'=>'<?php echo 1;']] as $bad)guideCheck($editor->request('/admin/achievements/guide-image',['csrf'=>$token,'achievement_id'=>$id,'alt'=>'Essai'],['field'=>'image',...$bad])['status']===422,'upload invalide '.$bad['name']);
+
+$oversized=$file;$oversized['body'].=str_repeat('x',5242880);
+guideCheck($editor->request('/admin/achievements/guide-image',['csrf'=>$token,'achievement_id'=>$id,'alt'=>'Essai'],$oversized)['status']===422,'taille maximale');
+$dimensions=$file;$dimensions['body']=substr_replace($file['body'],pack('NN',100000,100000),16,8);
+guideCheck($editor->request('/admin/achievements/guide-image',['csrf'=>$token,'achievement_id'=>$id,'alt'=>'Essai'],$dimensions)['status']===422,'dimensions excessives');
+guideCheck($editor->request('/admin/achievements/guide-image',['csrf'=>$token,'achievement_id'=>999999999,'alt'=>'Essai'],$file)['status']===422,'relation forgée rejetée');
+guideCheck($member->request('/guide-media/'.str_repeat('a',64).'.png')['status']===404,'fichier non associé refusé');
+$p->prepare("UPDATE achievements SET publication_status='draft' WHERE id=?")->execute([$id]);guideCheck($member->request($url)['status']===404&&$editor->request($url)['status']===200,'image privée suit publication');
+$p->prepare("UPDATE achievements SET publication_status='published' WHERE id=?")->execute([$id]);
+$data['guide_markdown']='';$editor->post('/admin/achievements/save',$data);guideCheck(!str_contains($member->request('/succes/'.$slug)['body'],'Comment obtenir ce succès ?'),'fiche sans guide sans section vide');
+guideCheck($read()['reward_xp']==='10'||$read()['reward_xp']===10,'récompenses inchangées');
+$logs=$p->query("SELECT old_values,new_values FROM audit_logs WHERE action='achievement.guide'")->fetchAll();guideCheck(count($logs)>0&&!str_contains(json_encode($logs),'Nouveau guide')&&str_contains(json_encode($logs),'sha256'),'audit compact sans contenu');
+$data['guide_markdown']=$md."\n\n![Écran de quête]($url)";$editor->post('/admin/achievements/save',$data);
+guideCheck(str_contains($member->request('/succes/'.$slug)['body'],$url),'guide avec image');
+$r=$member->request('/progression',['csrf'=>$member->token('/profil'),'achievement_id'=>$id,'action'=>'obtained']);guideCheck($r['status']===303,'suivi personnel préservé');

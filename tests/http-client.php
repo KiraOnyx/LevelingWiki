@@ -12,7 +12,8 @@ final class HttpTestClient {
                 $field=$key.(is_array($value)?'[]':'');
                 $body.="--$boundary\r\nContent-Disposition: form-data; name=\"$field\"\r\n\r\n$part\r\n";
             }
-            $body.="--$boundary\r\nContent-Disposition: form-data; name=\"evidence\"; filename=\"{$file['name']}\"\r\nContent-Type: {$file['mime']}\r\n\r\n{$file['body']}\r\n--$boundary--\r\n";
+            $fileField=$file['field']??'evidence';
+            $body.="--$boundary\r\nContent-Disposition: form-data; name=\"$fileField\"; filename=\"{$file['name']}\"\r\nContent-Type: {$file['mime']}\r\n\r\n{$file['body']}\r\n--$boundary--\r\n";
         } elseif ($data!==null) { $headers[]='Content-Type: application/x-www-form-urlencoded';$body=http_build_query($data); }
         $context=stream_context_create(['http'=>['method'=>$data===null?'GET':'POST','header'=>implode("\r\n",$headers),'content'=>$body,'ignore_errors'=>true,'follow_location'=>0,'timeout'=>15]]);
         $response=file_get_contents('http://127.0.0.1'.$path,false,$context);

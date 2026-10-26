@@ -4,7 +4,7 @@ namespace App\Services;
 final class UploadService
 {
     private array $config;
-    public function __construct() { $this->config = require dirname(__DIR__, 2) . '/config/security.php'; }
+    public function __construct(private bool $guide = false) { $this->config = require dirname(__DIR__, 2) . '/config/security.php'; if ($guide) { $this->config['upload_directory'] .= '/guides'; $this->config['upload_max_bytes'] = max(1,(int)(getenv('GUIDE_IMAGE_MAX_BYTES') ?: 5242880)); } }
     public function store(?array $file): ?string
     {
         if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) return null;
@@ -16,7 +16,7 @@ final class UploadService
         $extension = strtolower(pathinfo(is_string($file['name'] ?? null) ? $file['name'] : '', PATHINFO_EXTENSION));
         $image = @getimagesize($file['tmp_name']);
         if (!isset($types[$mime]) || !in_array($extension, $mime === 'image/jpeg' ? ['jpg','jpeg'] : [$types[$mime]], true)
-            || !$image || ($image['mime'] ?? '') !== $mime || $image[0] < 1 || $image[1] < 1 || $image[0] * $image[1] > 20000000) {
+            || !$image || ($image['mime'] ?? '') !== $mime || $image[0] < 1 || $image[1] < 1 || $image[0] * $image[1] > ($this->guide ? max(1,(int)(getenv('GUIDE_IMAGE_MAX_PIXELS') ?: 20000000)) : 20000000)) {
             throw new ValidationException('La capture doit être une image JPEG, PNG ou WebP valide (20 mégapixels maximum).');
         }
         $directory = $this->config['upload_directory'];
@@ -24,11 +24,11 @@ final class UploadService
         $name = bin2hex(random_bytes(32)) . '.' . $types[$mime];
         if (!move_uploaded_file($file['tmp_name'], $directory . '/' . $name)) throw new \RuntimeException('Stockage indisponible.');
         chmod($directory . '/' . $name, 0640);
-        return '/media/' . $name;
+        return ($this->guide ? '/guide-media/' : '/media/') . $name;
     }
     public function resolve(string $url): ?string
     {
-        if (!preg_match('~^/media/([a-f0-9]{64}\.(?:jpg|png|webp))$~D', $url, $match)) return null;
+        if (!preg_match('~^/'.($this->guide ? 'guide-media' : 'media').'/([a-f0-9]{64}\.(?:jpg|png|webp))$~D', $url, $match)) return null;
         $directory = realpath($this->config['upload_directory']);
         $candidate = $directory ? $directory . '/' . $match[1] : '';
         if (!$directory || is_link($candidate) || !is_file($candidate) || dirname((string) realpath($candidate)) !== $directory) return null;
