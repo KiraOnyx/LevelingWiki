@@ -18,14 +18,14 @@ $kindLabels = ['personal'=>'Personnelle', 'collective'=>'Collective', 'unconfirm
         <aside class="tower-sidebar">
             <details class="tower-navigation" open>
                 <summary><?= icon('filter') ?> Explorer la tour <span aria-hidden="true">⌃</span></summary>
-                <div class="tower-render-controls">
+                <details class="tower-settings"><summary>Rendu et ambiance</summary><div class="tower-render-controls">
                     <label for="tower-renderer">Rendu architectural</label>
                     <select id="tower-renderer"><option value="flat" <?= $renderer==='flat'?'selected':'' ?>>2D · originale</option><option value="relief" <?= $renderer==='relief'?'selected':'' ?>>2,5D · relief</option></select>
                     <label for="tower-atmosphere">Ambiance</label>
                     <select id="tower-atmosphere"><option value="auto">Automatique</option><option value="full">Complète · statique</option><option value="lite">Légère</option><option value="off">Sans décor</option></select>
                     <small data-render-info>Architecture SVG · interactions HTML</small>
                 </div>
-                <nav aria-label="Navigation de la tour">
+                </details><nav aria-label="Navigation de la tour">
                     <a href="#tower-top"><span>↑</span> Le sommet <small>Niv. <?= max([1,...array_column($levels,'level'),...array_column($divisions,'level')]) ?></small></a>
                     <p>REJOINDRE UNE DIVISION</p>
                     <?php foreach ($divisions as $division): ?>

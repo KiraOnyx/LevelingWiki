@@ -7,10 +7,15 @@ final class GuildCatalogRepository
     public const TABLES=['milestone'=>'guild_milestones','type'=>'guild_reward_types','reward'=>'guild_milestone_rewards'];
     public function __construct(private PDO $pdo){}
     public function find(string $entity,int $id):?array{$q=$this->pdo->prepare('SELECT * FROM '.self::TABLES[$entity].' WHERE id=?');$q->execute([$id]);return $q->fetch()?:null;}
-    public function types():array{return $this->pdo->query('SELECT * FROM guild_reward_types ORDER BY display_order,name,id')->fetchAll();}
+    public function types(string $search='',string $status='all',string $sort='asc'):array{
+        $where=$status==='all'?'1=1':('archived_at IS '.($status==='archived'?'NOT ':'').'NULL');
+        $literal='%'.str_replace(['!','%','_'],['!!','!%','!_'],$search).'%';
+        $q=$this->pdo->prepare("SELECT * FROM guild_reward_types WHERE ".$where." AND (name LIKE ? ESCAPE '!' OR slug LIKE ? ESCAPE '!' OR description LIKE ? ESCAPE '!') ORDER BY display_order ".($sort==='desc'?'DESC':'ASC').',name,id');$q->execute([$literal,$literal,$literal]);return $q->fetchAll();
+    }
     public function milestones(string $search='',string $status='active',string $sort='asc'):array{
         $where=$status==='all'?'1=1':('archived_at IS '.($status==='archived'?'NOT ':'').'NULL');
-        $q=$this->pdo->prepare('SELECT * FROM guild_milestones WHERE '.$where.' AND (title LIKE ? OR description LIKE ? OR CAST(level AS CHAR)=?) ORDER BY level '.($sort==='desc'?'DESC':'ASC').',id');$q->execute(['%'.$search.'%','%'.$search.'%',$search]);return $q->fetchAll();
+        $literal=str_replace(['!','%','_'],['!!','!%','!_'],$search);
+        $q=$this->pdo->prepare('SELECT * FROM guild_milestones WHERE '.$where.' AND (title LIKE ? ESCAPE \'!\' OR description LIKE ? ESCAPE \'!\' OR CAST(level AS CHAR)=?) ORDER BY level '.($sort==='desc'?'DESC':'ASC').',id');$q->execute(['%'.$literal.'%','%'.$literal.'%',$search]);return $q->fetchAll();
     }
     public function rewards(int $milestone):array{$q=$this->pdo->prepare('SELECT r.*,t.name AS type_name,t.icon,t.unit FROM guild_milestone_rewards r LEFT JOIN guild_reward_types t ON t.id=r.type_id WHERE r.milestone_id=? ORDER BY r.display_order,r.id');$q->execute([$milestone]);return $q->fetchAll();}
     // Only this projection crosses the member HTML/JSON boundary. Unknown payloads are discarded.

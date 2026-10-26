@@ -30,7 +30,7 @@ quickCheck($send($admin,[...$verify,'previous'=>'verified','value'=>'pending'])[
 quickCheck($repo->achievement($id)['verified_by']===null,'retrait de la vérification');
 $q=$p->prepare("SELECT COUNT(*) FROM audit_logs WHERE entity_id=? AND action IN ('achievement.update','achievement.publish','achievement.unpublish')");$q->execute([$id]);quickCheck((int)$q->fetchColumn()>=3,'journal existant alimenté');
 quickCheck(str_contains($admin->request('/admin/achievements')['body'],'data-quick-status'),'contrôles accessibles rendus');
-quickCheck(str_contains($admin->request('/admin')['body'],'Catégories actives'),'compteurs du tableau de bord');
+quickCheck(str_contains($admin->request('/admin/achievements')['body'],'Catégories actives'),'compteurs éditoriaux dans la section Succès');
 // Restore fixture using the same narrow service, never touch the development database.
 $service=new App\Services\AchievementService($p);$actor=(int)$verified['verified_by'];
 $service->quickUpdate(['id'=>$id,'field'=>'publication_status','previous'=>$after['publication_status'],'value'=>$before['publication_status']],$actor);

@@ -6,7 +6,6 @@ document.querySelectorAll('[data-catalog-form]').forEach(form => {
     const type = fields.type_id.selectedOptions[0];
     preview.textContent = 'Aperçu membre : ' + (fields.visibility.value === 'unknown' ? '???' : `${fields.quantity.value} ${fields.type_id.value ? type.textContent : fields.description.value}`);
   };
-  form.addEventListener('input', render); render();
-  form.addEventListener('submit', () => { form.querySelectorAll('button').forEach(b => { b.disabled = true; }); });
+  form.addEventListener('input', render); form.addEventListener('reset',()=>requestAnimationFrame(render)); render();
 });
 window.addEventListener('pageshow', () => document.querySelectorAll('[data-catalog-form] button').forEach(b => { b.disabled = false; }));

@@ -1,0 +1,39 @@
+/* Administrative geometry: one shared vocabulary, loaded after the Valhalla skin. */
+body.admin-theme{--ad-xs:.5rem;--ad-sm:.75rem;--ad-md:1rem;--ad-lg:1.5rem;--ad-xl:2rem;--ad-text:.9375rem;--ad-small:.8125rem;--ad-title:clamp(1.75rem,2.6vw,2.375rem);--ad-control:2.75rem;--ad-radius:.875rem;--ad-page:90rem;--ad-simple:40rem;--ad-form:49rem;--ad-complex:56.25rem;font-size:var(--ad-text);line-height:1.55}
+.admin-theme .admin-shell{width:100%;max-width:var(--ad-page);padding:0 clamp(1rem,3vw,2rem) max(var(--ad-xl),env(safe-area-inset-bottom));container-type:inline-size}
+.admin-theme #admin-main{min-width:0}.admin-theme .admin-nav{display:flex;flex-wrap:wrap;gap:var(--ad-xs);padding:var(--ad-sm) 0;margin:0 0 var(--ad-lg)}
+.admin-theme .admin-nav a{display:inline-flex;align-items:center;min-height:var(--ad-control);padding:.625rem .875rem;font-size:var(--ad-small);white-space:normal}
+.admin-theme .admin-heading,.admin-theme .page-heading{max-width:none;margin:var(--ad-lg) 0;gap:var(--ad-md)}
+.admin-theme .admin-heading{flex-wrap:wrap}.admin-theme .admin-heading h1,.admin-theme .page-heading h1{font-size:var(--ad-title);line-height:1.2;margin:var(--ad-xs) 0;overflow-wrap:anywhere}
+.admin-theme .admin-intro{font-size:var(--ad-text);line-height:1.55;margin-top:var(--ad-xs)}.admin-theme .page-heading>.primary-button{margin-top:var(--ad-md)}
+.admin-theme .admin-panel{padding:var(--ad-lg);margin-bottom:var(--ad-lg);border-radius:var(--ad-radius);min-width:0;overflow-wrap:anywhere}
+.admin-theme .admin-panel h2{font-size:1.1875rem;line-height:1.35;margin-bottom:var(--ad-md)}.admin-theme .panel-heading{display:flex;flex-wrap:wrap;align-items:center;gap:var(--ad-sm)}
+.admin-theme .admin-editor{width:100%;max-width:var(--ad-form);margin-inline:auto;scroll-margin-top:8rem}.admin-theme .admin-editor-simple{max-width:var(--ad-simple)}
+.admin-theme #admin-main>.admin-form{max-width:var(--ad-form);margin-inline:auto}.admin-theme #admin-main>.admin-form.admin-editor-complex{max-width:var(--ad-complex)}
+.admin-theme .admin-form{gap:var(--ad-md);min-width:0}.admin-theme .admin-form .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--ad-md)}
+.admin-theme label{font-size:var(--ad-text);min-width:0;gap:var(--ad-xs)}
+.admin-theme input:not([type=checkbox]):not([type=radio]),.admin-theme select,.admin-theme textarea{box-sizing:border-box;width:100%;min-width:0;max-width:100%;font:inherit;border-radius:.625rem;border:1px solid var(--line);background:var(--bg-secondary);color:var(--text-primary)}
+.admin-theme input:not([type=checkbox]):not([type=radio]),.admin-theme select{min-height:var(--ad-control);padding:.625rem .75rem;line-height:1.35}
+.admin-theme textarea{min-height:5.5rem;padding:var(--ad-sm);resize:vertical}.admin-theme input[type=color]{max-width:10rem}
+.admin-theme button,.admin-theme .primary-button,.admin-theme .secondary-button{min-width:var(--ad-control);min-height:var(--ad-control);padding:.625rem 1rem;font-size:var(--ad-text);line-height:1.4;white-space:normal;border-radius:.625rem}
+.admin-theme .admin-actions,.admin-theme .card-actions{display:flex;flex-wrap:wrap;gap:var(--ad-sm);align-items:center;margin-top:var(--ad-md)}
+.admin-theme .admin-filters{display:flex;flex-direction:row;flex-wrap:wrap;gap:var(--ad-sm);align-items:end;max-width:none;margin:0 0 var(--ad-lg)}
+.admin-theme .admin-filters>label{display:flex;flex-direction:column;align-items:stretch;flex:1 1 10rem;min-width:0;gap:var(--ad-xs)}
+.admin-theme .admin-filters>label:first-child{flex:2 1 15rem}.admin-theme .admin-filters>button,.admin-theme .admin-filters>.secondary-button{margin:0}.admin-theme .admin-filters>[role=status]{flex-basis:100%;font-size:var(--ad-small);margin:0}
+.admin-theme .guild-catalog-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:var(--ad-md);align-items:stretch}
+.admin-theme .guild-catalog-cards>.admin-panel{padding:var(--ad-md);margin:0;display:flex;flex-direction:column;align-items:stretch;gap:var(--ad-xs)}
+.admin-theme .guild-catalog-cards h2{margin:0}.admin-theme .guild-catalog-cards p{margin:0}.admin-theme .guild-catalog-cards ul{margin:0;padding-left:1.25rem}
+.admin-theme .guild-catalog-cards .card-actions{margin-top:auto;padding-top:var(--ad-sm)}.admin-theme .catalog-cycle{display:flex;gap:var(--ad-xs);flex-wrap:wrap;align-items:center;margin:0}
+.admin-theme details>summary{min-height:var(--ad-control);padding:.625rem 0;cursor:pointer}.admin-theme details>summary.primary-button{padding:.625rem 1rem;width:fit-content}
+.admin-theme details[open]>.admin-form,.admin-theme details[open]>.discord-role-form{margin:var(--ad-md) auto 0;max-width:var(--ad-form);width:100%}
+.admin-theme .taxonomy-grid{grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr));gap:var(--ad-md);align-items:start}
+.admin-theme .taxonomy-grid:has(details[open]){grid-template-columns:1fr;max-width:var(--ad-simple);margin-inline:auto}
+.admin-theme .user-panel,.admin-theme section[aria-labelledby^="roles-"]{max-width:var(--ad-form);margin-inline:auto}.admin-theme .user-panel .panel-heading h2{margin:0}.admin-theme .user-panel .form-help{margin:var(--ad-xs) 0}
+.admin-theme .discord-role-form{max-width:var(--ad-form);gap:var(--ad-md)}.admin-theme .edit-columns{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:var(--ad-lg)}
+.admin-theme .form-help,.admin-theme small{font-size:var(--ad-small)}.admin-theme p,.admin-theme a,.admin-theme code,.admin-theme td{overflow-wrap:anywhere}
+.admin-theme .table-scroll{width:100%;max-width:100%;min-width:0}.admin-theme table{width:100%;font-size:var(--ad-text)}.admin-theme td,.admin-theme th{padding:var(--ad-sm);font-size:inherit}.admin-theme pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:var(--ad-small);max-width:100%}
+@container (max-width:44rem){.admin-theme .admin-form .form-grid,.admin-theme .edit-columns{grid-template-columns:minmax(0,1fr)}.admin-theme .admin-panel{padding:var(--ad-md)}.admin-theme .admin-actions>*{flex:1 1 8rem}.admin-theme .discord-role-form{display:flex;flex-direction:column;align-items:stretch}.admin-theme .admin-editor{scroll-margin-top:12rem}}
+@media(max-width:700px){.admin-theme .admin-filters{display:grid;grid-template-columns:minmax(0,1fr)}.admin-theme .admin-form .form-grid,.admin-theme .edit-columns{grid-template-columns:minmax(0,1fr)}.admin-theme input,.admin-theme select,.admin-theme textarea{font-size:1rem}}
+@media(max-width:600px){.admin-theme .responsive-admin-table,.admin-theme .responsive-admin-table tbody{display:block;min-width:0}.admin-theme .responsive-admin-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.admin-theme .responsive-admin-table tr{display:grid;grid-template-columns:minmax(0,1fr);padding:var(--ad-sm);border-bottom:1px solid var(--line)}.admin-theme .responsive-admin-table td{display:block;border:0;padding:var(--ad-xs) 0;min-width:0}.admin-theme .responsive-admin-table td::before{content:attr(data-column);display:block;font-size:var(--ad-small);color:var(--text-secondary);margin-bottom:.25rem}}
+
+.admin-theme .admin-workspace{max-width:var(--ad-complex);margin-inline:auto}.admin-theme .admin-workspace .user-panel{max-width:none;display:flex;flex-wrap:wrap;gap:var(--ad-sm)}.admin-theme .user-panel>.panel-heading{flex-basis:100%;width:100%}.admin-theme .user-panel>details{flex:1 1 15rem;margin:0;border:0}.admin-theme .user-panel:has(details[open])>details{flex-basis:100%}

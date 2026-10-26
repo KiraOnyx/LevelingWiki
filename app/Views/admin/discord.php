@@ -5,14 +5,14 @@
 <section class="admin-panel neu-flat" aria-labelledby="roles-<?= $level ?>"><div class="panel-heading"><h2 id="roles-<?= $level ?>">Rôles <?= $label ?></h2><span class="admin-badge"><?= count($levelRoles) ?> rôle(s)</span></div>
 <?php if(!$levelRoles): ?><p class="form-help">Aucun rôle <?= $label ?> autorisé pour le moment.</p><?php endif; ?>
 <?php foreach ($levelRoles as $role): ?>
-<form class="discord-role-form" method="post">
+<details data-admin-disclosure <?= !empty($error)&&($_POST['discord_role_id']??'')===$role['discord_role_id']?'open':'' ?>><summary>Modifier <?= e($role['label']) ?> · <?= e($role['discord_role_id']) ?></summary><form class="discord-role-form" method="post">
 <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="level" value="<?= $level ?>"><input type="hidden" name="discord_role_id" value="<?= e($role['discord_role_id']) ?>">
 <label>Libellé administratif<input name="label" value="<?= e($role['label']) ?>" maxlength="100" required <?= $canEdit?'':'disabled' ?>></label>
 <div class="discord-role-identity"><span>Discord Role ID</span><code><?= e($role['discord_role_id']) ?></code></div>
 <?php if ($canEdit): ?><div class="discord-role-actions"><button name="action" value="save" class="secondary-button">Renommer</button><button name="action" value="delete" class="secondary-button">Retirer</button></div><?php endif; ?>
-</form><?php endforeach; ?>
-<?php if ($canEdit): ?><form method="post" class="discord-role-form discord-role-add">
+</form></details><?php endforeach; ?>
+<?php if ($canEdit): ?><details data-admin-disclosure <?= !empty($error)&&($_POST['level']??'')===$level?'open':'' ?>><summary class="primary-button">+ Ajouter un rôle <?= $label ?></summary><form method="post" class="discord-role-form discord-role-add">
 <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="level" value="<?= $level ?>">
 <label>Nouveau libellé<input name="label" maxlength="100" required></label><label>Discord Role ID<input name="discord_role_id" inputmode="numeric" pattern="[0-9]{17,20}" required></label><div class="discord-role-actions"><button class="primary-button" name="action" value="save">Ajouter</button></div>
-</form><?php else: ?><p class="form-help">Modification réservée au propriétaire.</p><?php endif; ?></section>
+</form></details><?php else: ?><p class="form-help">Modification réservée au propriétaire.</p><?php endif; ?></section>
 <?php endforeach; ?>

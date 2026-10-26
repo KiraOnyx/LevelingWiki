@@ -112,9 +112,8 @@ final class AdminController
             $this->render('discord',['roles'=>$this->pdo->query('SELECT * FROM discord_roles ORDER BY level,label')->fetchAll(),'error'=>$error]);return;
         }
         if ($path === '/admin') {
-            $items = $this->repository->achievements();
-            $stats = $this->repository->statistics();
-            $this->render('dashboard',compact('items','stats','error')); return;
+            $dashboard=(new \App\Services\AdminDashboardService($this->pdo))->overview($this->user);
+            $this->render('dashboard',compact('dashboard','error')); return;
         }
         if ($path === '/admin/achievements' || preg_match('~^/admin/achievements/[1-9][0-9]*/(?:delete|archive|restore)$~D',$path)) {
             $this->render('achievements',['items'=>$this->repository->achievements(),'stats'=>$this->repository->statistics(),'error'=>$error]); return;

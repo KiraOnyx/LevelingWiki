@@ -25,6 +25,8 @@ compose_test exec -T web php tests/guild-tower.php
 compose_test exec -T web php tests/guild-catalog.php
 compose_test exec -T web php tests/tower-prototype.php
 compose_test exec -T web php tests/ux-unified.php
+compose_test exec -T web php tests/admin-forms.php
+compose_test exec -T web php tests/admin-dashboard.php
 
 previous_owner_path=$(compose_test exec -T web php -r 'echo getenv("OWNER_LOGIN_PATH");')
 next_owner_path=$(compose_test exec -T web php bin/owner-access.php --generate)

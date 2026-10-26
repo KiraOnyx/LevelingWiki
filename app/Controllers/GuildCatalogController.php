@@ -30,7 +30,7 @@ final class GuildCatalogController
             $section=$entity==='type'?'types':'paliers';$selected=null;
             $selection=$save?($entity==='reward'?($_POST['milestone_id']??''):($_POST['id']??'')):($_GET['id']??'');
             if($selection!==''){$selected=$repo->find($section==='types'?'type':'milestone',Input::id($selection));if(!$selected){http_response_code(404);$error='Entrée introuvable.';}}
-            $types=$repo->types();$milestones=$repo->milestones($q,$status,$sort);
+            $types=$repo->types();$visibleTypes=$repo->types($q,$status,$sort);$milestones=$repo->milestones($q,$status,$sort);
             $rewards=$selected&&$section==='paliers'?$repo->rewards((int)$selected['id']):[];
             $flash=$_SESSION['guild_catalog_flash']??null;unset($_SESSION['guild_catalog_flash']);$view='guild-catalog';
             require_once dirname(__DIR__).'/Views/helpers.php';require dirname(__DIR__).'/Views/admin/layout.php';

@@ -25,6 +25,7 @@ document.querySelectorAll('form[method="post"]').forEach(form => {
         const action=data.get('action')||submitter?.value;
         const inline=form.hasAttribute('data-inline-progress');
         if((action==='delete'||(inline&&action==='not_started')) && !await confirmAction(action==='delete'?'Supprimer définitivement cet élément ?':'Annuler votre déclaration d’obtention ? Le succès restera consultable dans le Codex.')) {unlock();return;}
+        if ((form.dataset.confirm || action==='archive' || data.get('archived')==='1') && !await confirmAction(form.dataset.confirm || 'Archiver cet élément ? Il sera retiré des listes actives ; ses références seront conservées.')) {unlock();return;}
         form.setAttribute('aria-busy','true');
         if(!inline){
             // Native submission after confirmation; preserve clicked button name/value.
@@ -59,6 +60,7 @@ document.querySelectorAll('.admin-nav a').forEach(link=>{if(new URL(link.href).p
 const context=document.querySelector('[data-context-filters]');
 if(context){
     const rows=[...document.querySelectorAll('[data-filter-row]')];
+    const incoming=new URLSearchParams(location.search);for(const field of context.elements)if(field.name&&incoming.has(field.name))field.value=incoming.get(field.name);
     const filter=()=>{const data=new FormData(context);let count=0;rows.forEach(row=>{row.hidden=[...data].some(([key,value])=>value&&(key==='q'?!row.textContent.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()):row.dataset[key]!==value));if(!row.hidden)count++;});document.querySelector('[data-context-count]').textContent=count+' résultat'+(count===1?'':'s');};
     let searchTimer;context.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(filter,250);});context.addEventListener('change',filter);document.addEventListener('achievement-status-saved',filter);context.addEventListener('reset',()=>setTimeout(filter,0));context.addEventListener('submit',event=>event.preventDefault());
 }
