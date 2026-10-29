@@ -8,7 +8,7 @@ Constats : deux destinations Accueil/Succès identiques ; profil mêlant identit
 
 Modèle : discord_identities impose une identité Discord unique et une relation 1:1 avec users. personal_achievements est la source unique pour progression et tâches, avec unicité membre/succès, index membre/statut, clés étrangères et CHECK de cohérence. Les comptes sont retrouvés par ID Discord, pseudo/avatar actualisés ; une révocation conserve compte et progression. Aucun besoin de nouvelles tables ni de migration. Les 12 migrations restent inchangées.
 
-Permissions : contrôles serveur dans Auth, AdminGuard, DiscordAuthService, MemberController et services. MEMBER requis avant EDITOR/ADMIN ; OWNER local exclusif (super_admin interne), impossibilité de promotion Discord ; CSRF et vérification fraîche pour écritures. Maintenir ces contrôles, les NULL/zéro, captures privées, brouillons, audit, import et ancien suivi local.
+Permissions : contrôles serveur dans Auth, AdminGuard, DiscordAuthService, MemberController et services. Au moins un rôle MEMBER/EDITOR/ADMIN autorisé (logique OU, voir discord-hierarchie.md) ; OWNER local exclusif (super_admin interne), impossibilité de promotion Discord ; CSRF et vérification fraîche pour écritures. Maintenir ces contrôles, les NULL/zéro, captures privées, brouillons, audit, import et ancien suivi local.
 
 Performance : chargement groupé du catalogue et des titres, pas de requête par carte ; catalogue actuel de 33 succès. Éviter les parcours imbriqués pour associer la progression. Pagination serveur à envisager si le volume augmente fortement, sans inventer une complexité immédiate.
 

@@ -1,5 +1,6 @@
 # Phase 4 — Discord, permissions et suivi personnel
 
+> Politique de session actualisée : voir [Sessions Discord](discord-sessions.md). Les mentions historiques de cache de cinq minutes et de contrôle Discord forcé ci-dessous sont remplacées par un cache serveur de 24 heures et des contrôles locaux sur toutes les routes.
 Livraison du 23 octobre 2026. Le projet PHP/Docker existant est conservé. Le catalogue est désormais privé ; aucun succès importé n’est publié automatiquement. Le contrôle final de la base réelle relève 32 brouillons et un succès déjà publié (« Même jour, autre monde », journal du 22 octobre à 17:41:09), conservés sans changement. Aucun compte réel Discord n’est créé par les tests et aucun compte local n’est promu automatiquement.
 
 ## Mise en service locale
@@ -49,27 +50,27 @@ DISCORD_ROLE_TTL=300
 
 7. Appliquer la configuration : `docker compose up -d`. Le fichier `.env` est lu par Compose ; aucun secret n’est renvoyé dans le HTML.
 8. Se connecter comme SUPER_ADMIN local, puis ouvrir **Administration > Paramètres Discord**, route `/admin/settings/discord`.
-9. Dans Discord, copier les **Role ID** des rôles choisis (mode développeur). Ajouter au moins un ID à la liste **MEMBER**, avec un libellé administratif libre.
-10. Ajouter les IDs **EDITOR** et **ADMIN** voulus. Seul le SUPER_ADMIN peut modifier la liste ADMIN. Les ADMIN peuvent gérer MEMBER et EDITOR.
+9. Dans Discord, copier les **Role ID** des rôles choisis (mode développeur). Ajouter au moins un ID à une liste **MEMBER**, **EDITOR** ou **ADMIN**, avec un libellé administratif libre.
+10. Ajouter les IDs **EDITOR** et **ADMIN** voulus. Seul le SUPER_ADMIN peut modifier la liste ADMIN. Les ADMIN peuvent gérer MEMBER et EDITOR ; les EDITOR peuvent gérer MEMBER.
 11. Un changement de libellé n’altère pas l’identité du rôle. Les noms sont saisis manuellement : aucune récupération de la liste complète des rôles via bot n’est nécessaire.
 12. Les paramètres OAuth2 sensibles restent une configuration serveur, modifiée par le propriétaire ayant accès au `.env`/hébergeur. L’interface ne permet à aucun ADMIN Discord de les lire ou de les modifier ; elle ne propose pas d’édition web du secret.
 
-Ne pas ajouter de bot au serveur pour ce flux. Les seuls scopes demandés sont `identify` et `guilds.members.read`. L’autorisation OAuth2 du membre permet de lire son identité et ses propres rôles dans le serveur configuré. Le rôle Discord `@everyone` n’est pas utilisé implicitement : configurer un rôle MEMBER attribué explicitement.
+Ne pas ajouter de bot au serveur pour ce flux. Les seuls scopes demandés sont `identify` et `guilds.members.read`. L’autorisation OAuth2 du membre permet de lire son identité et ses propres rôles dans le serveur configuré. Le rôle Discord `@everyone` n’est pas utilisé implicitement : configurer au moins un rôle autorisé attribué explicitement.
 
 ## Permissions appliquées côté serveur
 
 | Niveau | Conditions | Accès |
 | --- | --- | --- |
 | MEMBER | Discord valide, membre du serveur, au moins un Role ID MEMBER autorisé | Catalogue publié, captures autorisées, progression, tâches |
-| EDITOR | MEMBER + un Role ID EDITOR | MEMBER + création/modification, récompenses, captures, publication/dépublication |
-| ADMIN | MEMBER + un Role ID ADMIN | EDITOR + catégories/titres, archivage/restauration, audit, gestion des listes MEMBER/EDITOR |
+| EDITOR | Discord valide, membre du serveur, un Role ID EDITOR | MEMBER + gestion des associations MEMBER + création/modification, récompenses, captures, publication/dépublication |
+| ADMIN | Discord valide, membre du serveur, un Role ID ADMIN | EDITOR + catégories/titres, archivage/restauration, audit, gestion des listes MEMBER/EDITOR |
 | SUPER_ADMIN | Compte local unique désigné explicitement | Tous les droits, comptes, liste ADMIN et suppressions définitives |
 
-ADMIN implique EDITOR sans exiger un rôle EDITOR. Un rôle EDITOR ou ADMIN sans MEMBER ne donne aucun accès. Aucun ID Discord ne peut octroyer SUPER_ADMIN. Les comptes Discord sont identifiés exclusivement par leur Discord User ID unique ; le pseudo et l’avatar sont actualisés à chaque connexion. Aucun rapprochement par pseudo ou email n’est effectué.
+ADMIN implique EDITOR sans exiger un rôle EDITOR. Un rôle EDITOR ou ADMIN suffit sans MEMBER. Le niveau autorisé le plus élevé est retenu. Aucun ID Discord ne peut octroyer SUPER_ADMIN. Les comptes Discord sont identifiés exclusivement par leur Discord User ID unique ; le pseudo et l’avatar sont actualisés à chaque connexion. Aucun rapprochement par pseudo ou email n’est effectué.
 
 Les droits sont recalculés à la connexion et au plus tard après 300 secondes pendant la lecture (délai configurable entre 1 et 300 secondes). Les accès administratifs, les captures non publiées et les écritures personnelles forcent une vérification Discord récente. Toute modification d’une liste ou d’un libellé de rôle incrémente la version globale de politique : les caches sont invalidés dès la requête suivante. Une erreur réseau, un token invalide, une adhésion en attente ou une réponse incohérente refuse l’accès ; aucun ancien privilège sensible n’est réutilisé. Le compte local propriétaire n’appelle pas Discord.
 
-Un membre qui perd MEMBER conserve son compte, sa progression et ses tâches. Un compte désactivé localement est refusé même si ses rôles Discord seraient suffisants. Pour une modification de politique survenant exactement pendant une requête déjà autorisée, la nouvelle politique s’applique au plus tard à la requête suivante.
+Un membre qui perd son dernier rôle autorisé perd l’accès, mais conserve son compte et sa progression. Perdre MEMBER ne retire pas un autre rôle EDITOR/ADMIN autorisé. Un compte désactivé localement est refusé même si ses rôles Discord seraient suffisants. Pour une modification de politique survenant exactement pendant une requête déjà autorisée, la nouvelle politique s’applique au plus tard à la requête suivante.
 
 ## Flux OAuth2 et confidentialité
 

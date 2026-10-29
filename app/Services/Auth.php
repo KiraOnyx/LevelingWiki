@@ -5,21 +5,24 @@ use PDO;
 final class Auth
 {
     private array $config;
+    public bool $expired=false;
     public function __construct(private PDO $pdo) { $this->config = require dirname(__DIR__, 2) . '/config/security.php'; }
     public function start(): void
     {
         if (session_status() === PHP_SESSION_ACTIVE) return;
+        ini_set('session.gc_maxlifetime','86400');
         ini_set('session.use_strict_mode', '1');
         ini_set('session.use_only_cookies', '1');
         ini_set('session.use_trans_sid', '0');
         ini_set('session.upload_progress.enabled', '0');
         session_name('lw_session');
-        session_set_cookie_params(['lifetime'=>0, 'path'=>'/', 'secure'=>$this->config['secure_cookie'], 'httponly'=>true, 'samesite'=>'Lax']);
+        session_set_cookie_params(['lifetime'=>86400, 'path'=>'/', 'secure'=>$this->config['secure_cookie'], 'httponly'=>true, 'samesite'=>'Lax']);
         session_start();
         $_SESSION['csrf'] ??= bin2hex(random_bytes(32));
     }
     public function csrf(): string { $this->start(); return $_SESSION['csrf']; }
     public function validCsrf(mixed $token): bool { return is_string($token) && hash_equals($this->csrf(), $token); }
+    // Paramètre conservé pour les appelants existants : toutes les routes utilisent le même cache.
     public function user(bool $sensitive = false): ?array
     {
         $this->start();
@@ -27,7 +30,7 @@ final class Auth
         $now = time();
         if ($now - ($_SESSION['last_seen'] ?? 0) >= $this->config['idle_seconds']
             || $now - ($_SESSION['signed_in'] ?? 0) >= $this->config['absolute_seconds']) {
-            $this->logout(); return null;
+            $this->expired=true;$this->logout(); return null;
         }
         $statement = $this->pdo->prepare('SELECT id, username, email, role, auth_provider, is_active, session_version, must_change_password, created_at FROM users WHERE id = ?');
         $statement->execute([$_SESSION['user_id']]);
@@ -37,7 +40,8 @@ final class Auth
             $this->logout(); return null;
         }
         if ($user['auth_provider']==='discord') {
-            $user['role']=(new DiscordAuthService($this->pdo))->authorize($user,$sensitive);
+            $user['role']=(new DiscordAuthService($this->pdo))->authorize($user);
+            if(in_array($_SESSION['discord_failure']??null,['oauth','session'],true)){$this->expired=true;$this->logout();return null;}
             $profile=$this->pdo->prepare('SELECT display_name,discord_user_id,avatar_hash FROM discord_identities WHERE user_id=?');$profile->execute([$user['id']]);
             $identity=$profile->fetch();$user['display_name']=$identity['display_name']??$user['username'];$user['discord_user_id']=$identity['discord_user_id']??null;$user['avatar_hash']=$identity['avatar_hash']??null;
         }

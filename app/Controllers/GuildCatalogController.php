@@ -10,8 +10,8 @@ final class GuildCatalogController
             $pdo=Database::connect();$auth=new Auth($pdo);$user=MemberController::requireUser($auth,true);if(!$user)return;
             if(!\App\Services\PermissionService::edit($user)){http_response_code(403);MemberController::render('denied',['error'=>'Catalogue réservé aux éditeurs et administrateurs.']);return;}
             $method=$_SERVER['REQUEST_METHOD']??'GET';$base='/admin/tour-de-guilde/';
-            $routes=['paliers'=>'milestone','types'=>'type','recompenses'=>'reward'];$suffix=substr($path,strlen($base));$save=str_ends_with($suffix,'/save');$section=$save?substr($suffix,0,-5):$suffix;
-            if(!isset($routes[$section])||(!$save&&$section==='recompenses')){http_response_code(404);return;}
+            $routes=['paliers'=>'milestone','types'=>'type','recompenses'=>'reward'];$suffix=substr($path,strlen($base));$deleting=str_ends_with($suffix,'/delete');$save=$deleting||str_ends_with($suffix,'/save');$section=$save?substr($suffix,0,$deleting?-7:-5):$suffix;
+            if(($deleting&&$section!=='paliers')||!isset($routes[$section])||(!$save&&$section==='recompenses')){http_response_code(404);return;}
             if(($save&&$method!=='POST')||(!$save&&$method!=='GET')){http_response_code(405);header('Allow: '.($save?'POST':'GET'));return;}
             $entity=$routes[$section];$repo=new GuildCatalogRepository($pdo);$csrf=$auth->csrf();$error=null;$failedEntity=null;
             $filters=$save?$_POST:$_GET;$q=Input::text($filters,'q',160);$status=Input::choice(['status'=>$filters['status']??'active'],'status',['active','archived','all']);$sort=Input::choice(['sort'=>$filters['sort']??'asc'],'sort',['asc','desc']);
@@ -19,6 +19,7 @@ final class GuildCatalogController
             if($save){
                 if(!$auth->validCsrf($_POST['csrf']??null)){http_response_code(403);$error='Formulaire expiré ou invalide.';}
                 else try{
+                    if($deleting){(new GuildCatalogService($pdo))->deleteMilestone($_POST,$user);$_SESSION['guild_catalog_flash']='Palier supprimé définitivement.';header('Location: '.$base.'paliers?'.$query,true,303);return;}
                     $id=(new GuildCatalogService($pdo))->save($entity,$_POST,$user);
                     $_SESSION['guild_catalog_flash']='Catalogue enregistré.';
                     $target=$entity==='type'?'types':'paliers';$selected=$entity==='reward'?Input::id($_POST['milestone_id']):$id;

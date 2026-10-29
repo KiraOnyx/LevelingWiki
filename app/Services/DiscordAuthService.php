@@ -23,8 +23,8 @@ final class DiscordAuthService
     }
     public function callback(array $query): array {
         $pending=$_SESSION['oauth'] ?? null;unset($_SESSION['oauth']);
-        if (!$pending || time()-$pending['at']>600 || !is_string($query['state']??null) || !hash_equals($pending['state'],$query['state'])) throw new ValidationException('Connexion expirée ou state invalide.');
-        if (isset($query['error']) || !is_string($query['code']??null) || strlen($query['code'])>2048 || (isset($query['iss']) && $query['iss']!=='https://discord.com')) throw new ValidationException('Autorisation Discord refusée ou invalide.');
+        if (!$pending || time()-$pending['at']>600 || !is_string($query['state']??null) || !hash_equals($pending['state'],$query['state'])) throw new DiscordAccessException('session');
+        if (isset($query['error']) || !is_string($query['code']??null) || strlen($query['code'])>2048 || (isset($query['iss']) && $query['iss']!=='https://discord.com')) throw new DiscordAccessException('oauth');
         $this->client->configured();
         $tokens=$this->client->token(['grant_type'=>'authorization_code','code'=>$query['code'],'redirect_uri'=>$this->config['redirect_uri'],'code_verifier'=>$pending['verifier']]);
         $identity=$this->client->me($tokens['access']);
@@ -34,8 +34,10 @@ final class DiscordAuthService
         $avatar=$identity['avatar']??null;
         if ($avatar!==null && (!is_string($avatar) || !preg_match('/^(?:a_)?[a-f0-9]{32}$/D',$avatar))) throw new ValidationException('Avatar Discord invalide.');
         $version=$this->version();
-        $role=$this->role($this->client->member($tokens['access']));
-        if ($role==='denied') { $_SESSION['discord_denied']=true;throw new ValidationException('Accès refusé : un rôle MEMBER autorisé est nécessaire.'); }
+        $member=$this->client->member($tokens['access']);
+        $member=['roles'=>$member['roles']??null,'pending'=>$member['pending']??false];
+        $role=$this->role($member);
+        if ($role==='denied') { $_SESSION['discord_denied']=true;throw new DiscordAccessException('roles'); }
         $this->pdo->beginTransaction();
         try {
             $q=$this->pdo->prepare('SELECT u.* FROM discord_identities d JOIN users u ON u.id=d.user_id WHERE d.discord_user_id=? FOR UPDATE');$q->execute([$id]);$user=$q->fetch();
@@ -57,34 +59,41 @@ final class DiscordAuthService
         $q=$this->pdo->prepare('SELECT * FROM users WHERE id=?');$q->execute([$userId]);$user=$q->fetch();
         session_regenerate_id(true);
         $_SESSION=['user_id'=>$userId,'session_version'=>(int)$user['session_version'],'signed_in'=>time(),'last_seen'=>time(),'csrf'=>bin2hex(random_bytes(32)),
-            'discord'=>['tokens'=>$tokens,'checked'=>time(),'version'=>$version,'role'=>$role,'guild'=>$this->config['guild_id'],'client'=>$this->config['client_id']]];
+            'discord'=>['member'=>$member,'tokens'=>$tokens,'checked'=>time(),'version'=>$version,'role'=>$role,'guild'=>$this->config['guild_id'],'client'=>$this->config['client_id']]];
         Audit::record($this->pdo,$userId,'discord.login','user',$userId);
         return $user;
     }
-    public function authorize(array $user,bool $force=false): string {
+    public function authorize(array $user): string {
+        unset($_SESSION['discord_failure']);
         $session=$_SESSION['discord']??null;
-        if (!$session || $session['guild']!==$this->config['guild_id'] || $session['client']!==$this->config['client_id']) return 'denied';
+        if (!$session) {$_SESSION['discord_failure']='session';return 'denied';}
+        if ($session['guild']!==$this->config['guild_id'] || $session['client']!==$this->config['client_id']) {$_SESSION['discord_failure']='configuration';return 'denied';}
         $version=$this->version();
-        if (!$force && $session['version']===$version && time()-$session['checked']<$this->config['role_ttl']) return $session['role'];
+        $fresh=isset($session['member'],$session['checked']) && $session['checked']<=time() && time()-$session['checked']<$this->config['role_ttl'];
+        if($fresh && $session['version']===$version)return $session['role'];
         // Échec fermé : ne jamais réutiliser un ancien rôle après une erreur API.
         $_SESSION['discord']['role']='denied';$_SESSION['discord']['checked']=0;
         try {
             $tokens=$session['tokens'];
-            if ($tokens['expires']<=time()+30) $tokens=$this->client->token(['grant_type'=>'refresh_token','refresh_token'=>$tokens['refresh']]);
+            if (!$fresh && $tokens['expires']<=time()+30) $tokens=$this->client->token(['grant_type'=>'refresh_token','refresh_token'=>$tokens['refresh']]);
             $_SESSION['discord']['tokens']=$tokens;
-            $role=$this->role($this->client->member($tokens['access']));
-            $_SESSION['discord']=[...$_SESSION['discord'],'checked'=>time(),'version'=>$version,'role'=>$role];
+            $member=$fresh?$session['member']:$this->client->member($tokens['access']);
+            $member=['roles'=>$member['roles']??null,'pending'=>$member['pending']??false];
+            $role=$this->role($member);
+            $_SESSION['discord']=[...$_SESSION['discord'],'member'=>$member,'checked'=>$fresh?$session['checked']:time(),'version'=>$version,'role'=>$role];
+            if ($role==='denied') $_SESSION['discord_failure']='roles';
             if ($role!=='denied') $this->pdo->prepare('UPDATE users SET role=? WHERE id=? AND auth_provider=\'discord\'')->execute([$role,$user['id']]);
             if ($role!==$session['role']) Audit::record($this->pdo,(int)$user['id'],'discord.permissions','user',(int)$user['id'],['role'=>$session['role']],['role'=>$role]);
             return $role;
-        } catch (\Throwable) { return 'denied'; }
+        } catch (DiscordAccessException $e) { $_SESSION['discord_failure']=$e->reason;return 'denied'; }
+        catch (\Throwable) { $_SESSION['discord_failure']='internal';return 'denied'; }
     }
     public function role(array $member): string {
         if (!isset($member['roles']) || !is_array($member['roles']) || !array_is_list($member['roles']) || ($member['pending']??false)) return 'denied';
         foreach ($member['roles'] as $id) if (!is_string($id) || !preg_match('/^[0-9]{17,20}$/D',$id)) return 'denied';
         $allowed=['member'=>false,'editor'=>false,'admin'=>false];
         foreach ($this->pdo->query('SELECT level,discord_role_id FROM discord_roles') as $row) if (in_array($row['discord_role_id'],$member['roles'],true)) $allowed[$row['level']]=true;
-        return !$allowed['member']?'denied':($allowed['admin']?'admin':($allowed['editor']?'editor':'member'));
+        return $allowed['admin']?'admin':($allowed['editor']?'editor':($allowed['member']?'member':'denied'));
     }
     public function version(): int { return (int)$this->pdo->query('SELECT version FROM authorization_policy WHERE id=1')->fetchColumn(); }
     public function revoke(): void { if (isset($_SESSION['discord']['tokens']['access'])) $this->client->revoke($_SESSION['discord']['tokens']['access']); }

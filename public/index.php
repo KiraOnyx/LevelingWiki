@@ -16,7 +16,7 @@ if (App\Services\OwnerAccess::matches($path)) {
     (new App\Controllers\MemberController())->dispatch($path);
 } elseif ($path === '/tour-de-guilde') {
     (new App\Controllers\GuildTowerController())->show();
-} elseif (preg_match('#^/admin/tour-de-guilde/(paliers|types|recompenses)(/save)?$#D', $path)) {
+} elseif (preg_match('#^/admin/tour-de-guilde/(paliers|types|recompenses)(/save|/delete)?$#D', $path)) {
     (new App\Controllers\GuildCatalogController())->admin($path);
 } elseif ($path === '/admin/tour-de-guilde' || str_starts_with($path, '/admin/tour-de-guilde/')) {
     (new App\Controllers\GuildTowerController())->admin(rtrim($path, '/'));

@@ -70,6 +70,9 @@ final class AchievementService
                 $before = (new AdminRepository($this->pdo))->achievement($id);
             }
             $guide=array_key_exists('guide_markdown',$data)?Input::text($data,'guide_markdown',100000):($before['guide_markdown']??'');
+            $participants=$data['participants_required']??($before['participants_required']??1);
+            if(!is_scalar($participants)||!preg_match('/^[1-9][0-9]{0,2}$/D',(string)$participants)||(int)$participants>100)throw new ValidationException('participants_required : indiquez un nombre entier entre 1 et 100.');
+            $values['participants_required']=(int)$participants;
             $oldGuide=$before['guide_markdown']??'';
             if(isset($data['guide_revision']) && (!is_string($data['guide_revision']) || !hash_equals(hash('sha256',$oldGuide),$data['guide_revision'])))throw new ValidationException('Le guide a été modifié entre-temps. Rechargez la fiche avant de réessayer. Votre texte est conservé ci-dessous.');
             $oldFile = $before['evidence_path'] ?? null;

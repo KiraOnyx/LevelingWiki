@@ -37,3 +37,10 @@ body.admin-theme{--ad-xs:.5rem;--ad-sm:.75rem;--ad-md:1rem;--ad-lg:1.5rem;--ad-x
 @media(max-width:600px){.admin-theme .responsive-admin-table,.admin-theme .responsive-admin-table tbody{display:block;min-width:0}.admin-theme .responsive-admin-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.admin-theme .responsive-admin-table tr{display:grid;grid-template-columns:minmax(0,1fr);padding:var(--ad-sm);border-bottom:1px solid var(--line)}.admin-theme .responsive-admin-table td{display:block;border:0;padding:var(--ad-xs) 0;min-width:0}.admin-theme .responsive-admin-table td::before{content:attr(data-column);display:block;font-size:var(--ad-small);color:var(--text-secondary);margin-bottom:.25rem}}
 
 .admin-theme .admin-workspace{max-width:var(--ad-complex);margin-inline:auto}.admin-theme .admin-workspace .user-panel{max-width:none;display:flex;flex-wrap:wrap;gap:var(--ad-sm)}.admin-theme .user-panel>.panel-heading{flex-basis:100%;width:100%}.admin-theme .user-panel>details{flex:1 1 15rem;margin:0;border:0}.admin-theme .user-panel:has(details[open])>details{flex-basis:100%}
+.admin-theme .catalog-delete{margin:0;min-width:0}.admin-theme .catalog-delete button{white-space:normal;max-width:100%}.admin-theme .catalog-delete .check-label{font-size:var(--ad-small);margin-bottom:var(--ad-sm)}
+
+/* Role forms: two readable fields, with actions and cancellation on one row. */
+.admin-theme .discord-role-form{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}
+.admin-theme .discord-role-actions{grid-column:1/-1;justify-content:flex-start;gap:.5rem}
+.admin-theme .discord-role-identity code{font-size:.8125rem;min-height:2.75rem;overflow-wrap:anywhere}
+.admin-theme [data-admin-disclosure]>summary{overflow-wrap:anywhere}

@@ -1,3 +1,3 @@
 <div class="profile-heading"><?php require dirname(__DIR__).'/partials/avatar.php'; ?><div><p class="eyebrow">MON PROFIL</p><h1><?= e($user['display_name']??$user['username']) ?></h1><p>Membre depuis le <?= e((new DateTimeImmutable($user['created_at']))->format('d/m/Y')) ?></p></div></div>
 <section class="admin-panel neu-flat"><h2>Votre compte</h2><p><?= $user['auth_provider']==='discord'?'Identité Discord':'Propriétaire local indépendant' ?> · <?= e(strtoupper($user['role'])) ?></p><p>Vos autorisations peuvent évoluer. Votre progression reste conservée.</p></section>
-<?php require dirname(__DIR__).'/partials/ascension.php';require dirname(__DIR__).'/partials/recent.php'; ?>
+<?php require dirname(__DIR__).'/partials/ascension.php';require dirname(__DIR__).'/partials/personal-rewards.php';require dirname(__DIR__).'/partials/category-progress.php';require dirname(__DIR__).'/partials/recent.php'; ?>

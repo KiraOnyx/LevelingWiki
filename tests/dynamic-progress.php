@@ -12,7 +12,7 @@ $csrf=$member->token('/profil');$send=fn($data)=>$member->request('/progression'
 $r=$send(['action'=>'obtained']);$result=json_decode($r['body'],true);$overview=(new App\Services\PersonalService($p))->overview($userId);
 dynamicCheck($r['status']===200&&$result['summary']==json_decode(json_encode($overview['summary']),true),'totaux dynamiques calculés par le serveur');
 dynamicCheck($result['rewards']===$overview['rewardsEstimate'],'récompenses exactes, valeurs inconnues préservées');
-dynamicCheck($result['categories']===$overview['categoriesProgress'],'répartition dynamique par catégorie');
+dynamicCheck($result['categories']===json_decode(json_encode($overview['categoriesProgress']),true),'répartition dynamique par catégorie');
 dynamicCheck(count($result['obtained'])===1&&$result['obtained_at']!==null,'état et date confirmés');
 $again=json_decode($send(['action'=>'obtained'])['body'],true);dynamicCheck($again['summary']['obtained']===1&&$again['obtained_at']===$result['obtained_at'],'double déclaration idempotente');
 dynamicCheck($send(['action'=>'not_started'])['status']===422,'annulation exige confirmation');

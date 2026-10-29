@@ -6,6 +6,7 @@ $file='/tmp/discord-state.json';$state=is_file($file)?json_decode(file_get_conte
 $path=parse_url($_SERVER['REQUEST_URI'],PHP_URL_PATH);
 $save=static function() use(&$state,$file){file_put_contents($file,json_encode($state));};
 $fail=static function(int $code){http_response_code($code);echo '{"error":"mock_error"}';exit;};
+if ($path==='/test/count'){echo json_encode(['calls'=>$state['calls']??0]);exit;}
 if ($path==='/test/state') {
     $input=json_decode(file_get_contents('php://input'),true);
     if (isset($input['user'])) $state['users'][$input['user']['id']]=$input['user'];
@@ -13,6 +14,7 @@ if ($path==='/test/state') {
     if (array_key_exists('outage',$input)) $state['outage']=$input['outage'];
     $save();echo '{}';exit;
 }
+$state['calls']=($state['calls']??0)+1;$save();
 if ($state['outage']) $fail(503);
 if ($path==='/oauth2/token') {
     if (($_POST['client_secret']??'')!=='isolated-test-only') $fail(401);

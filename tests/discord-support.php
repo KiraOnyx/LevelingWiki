@@ -22,3 +22,8 @@ function discordLogin(string $id,array $roles): HttpTestClient {
     if ($response['status']!==303) throw new RuntimeException('Connexion Discord simulée échouée : '.$response['body']);
     return $client;
 }
+
+function expireDiscordCache(HttpTestClient $client):void {
+    $code='session_id(trim(stream_get_contents(STDIN)));session_start();$_SESSION["discord"]["checked"]=time()-86400;session_write_close();';
+    $proc=proc_open([PHP_BINARY,'-r',$code],[0=>['pipe','r'],1=>['pipe','w'],2=>['pipe','w']],$pipes);fwrite($pipes[0],$client->cookies['lw_session']);fclose($pipes[0]);fclose($pipes[1]);fclose($pipes[2]);if(proc_close($proc)!==0)throw new RuntimeException('Expiration cache test');
+}

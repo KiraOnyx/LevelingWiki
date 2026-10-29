@@ -6,10 +6,10 @@ final class DiscordClient
     public function __construct(private array $config) {}
     public function configured(): void
     {
-        foreach (['client_id','guild_id'] as $key) if (!preg_match('/^[0-9]{17,20}$/D',$this->config[$key])) throw new ValidationException('Discord n’est pas encore configuré. Utilisez la connexion propriétaire.');
-        if ($this->config['client_secret']==='') throw new ValidationException('Discord n’est pas encore configuré.');
+        foreach (['client_id','guild_id'] as $key) if (!preg_match('/^[0-9]{17,20}$/D',$this->config[$key])) throw new DiscordAccessException('configuration');
+        if ($this->config['client_secret']==='') throw new DiscordAccessException('configuration');
         $uri=$this->config['redirect_uri'];
-        if (!filter_var($uri,FILTER_VALIDATE_URL) || (parse_url($uri,PHP_URL_SCHEME)!=='https' && !in_array(parse_url($uri,PHP_URL_HOST),['localhost','127.0.0.1'],true))) throw new ValidationException('URL de callback Discord invalide.');
+        if (!filter_var($uri,FILTER_VALIDATE_URL) || (parse_url($uri,PHP_URL_SCHEME)!=='https' && !in_array(parse_url($uri,PHP_URL_HOST),['localhost','127.0.0.1'],true))) throw new DiscordAccessException('configuration');
     }
     public function token(array $fields): array
     {
@@ -36,10 +36,15 @@ final class DiscordClient
             'ssl'=>['verify_peer'=>true,'verify_peer_name'=>true]]);
         $body=@file_get_contents($this->config['api_base'].$path,false,$context,0,1048577);
         preg_match('/\s(\d{3})\s/',$http_response_header[0] ?? '',$status);
-        if ($body===false || strlen($body)>1048576 || (int)($status[1]??0)<200 || (int)($status[1]??0)>=300) throw new ValidationException('Vérification Discord impossible ou accès non autorisé. Réessayez ou reconnectez-vous.');
+        $code=(int)($status[1]??0);
+        if ($body===false || $code===0 || $code===429 || $code>=500) throw new DiscordAccessException('communication');
+        if ($code===404 && str_ends_with($path,'/member')) throw new DiscordAccessException('membership');
+        if ($code===401 && $path==='/oauth2/token') throw new DiscordAccessException('configuration');
+        if ($code===400 || $code===401 || $code===403) throw new DiscordAccessException('oauth');
+        if (strlen($body)>1048576 || $code<200 || $code>=300) throw new DiscordAccessException('internal');
         if ($body==='') return [];
-        try { $data=json_decode($body,true,32,JSON_THROW_ON_ERROR); } catch (\Throwable) { throw new ValidationException('Réponse Discord invalide.'); }
-        if (!is_array($data)) throw new ValidationException('Réponse Discord invalide.');
+        try { $data=json_decode($body,true,32,JSON_THROW_ON_ERROR); } catch (\Throwable) { throw new DiscordAccessException('internal'); }
+        if (!is_array($data)) throw new DiscordAccessException('internal');
         return $data;
     }
 }

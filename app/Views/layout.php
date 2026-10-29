@@ -16,13 +16,14 @@ $hasYggdrasil = in_array($page, ['member/home', 'catalog', 'member/achievements'
     <link rel="stylesheet" href="/assets/css/admin.css">
     <link rel="stylesheet" href="/assets/css/valhalla.css?v=13">
     <?php if(in_array($page,['catalog','detail','member/achievements'],true)): ?><link rel="stylesheet" href="/assets/css/codex-guides.css?v=4"><?php endif; ?>
+    <?php if(in_array($page,['catalog','detail','member/achievements','member/home','member/profile'],true)): ?><link rel="stylesheet" href="/assets/css/personal-rewards.css?v=1"><?php endif; ?>
     <?php if ($page === 'tower/prototype'): ?>
     <link rel="stylesheet" href="/assets/css/tower.css?v=phase-c-1">
     <link rel="stylesheet" href="/assets/css/tower-relief.css?v=phase-c-1"><link rel="stylesheet" href="/assets/css/tower-navigation.css?v=1">
     <script type="module" src="/assets/js/tower.js?v=phase-c-1"></script>
     <?php endif; ?>
-    <script defer src="/assets/js/interface.js?v=13"></script>
-    <script type="module" src="/assets/js/app.js?v=10"></script>
+    <script defer src="/assets/js/interface.js?v=15"></script>
+    <script type="module" src="/assets/js/app.js?v=11"></script>
 </head>
 <body class="neu-dark lw-theme member-theme<?= in_array($page,['catalog','member/achievements'],true)?' collection-page':'' ?><?= $illustratedNotFound ? ' ginnungagap-page' : ($hasYggdrasil ? ' yggdrasil-page' : '') ?>">
 <a class="skip-link" href="#main">Aller au contenu</a>

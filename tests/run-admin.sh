@@ -28,6 +28,10 @@ compose_test exec -T web php tests/ux-unified.php
 compose_test exec -T web php tests/admin-forms.php
 compose_test exec -T web php tests/admin-dashboard.php
 compose_test exec -T web php tests/guides.php
+compose_test exec -T web php tests/phase-d.php
+compose_test exec -T web php tests/discord-access.php
+compose_test exec -T web php tests/discord-hierarchy.php
+compose_test exec -T web php tests/discord-sessions.php
 
 previous_owner_path=$(compose_test exec -T web php -r 'echo getenv("OWNER_LOGIN_PATH");')
 next_owner_path=$(compose_test exec -T web php bin/owner-access.php --generate)

@@ -24,8 +24,6 @@ verify4($anonymous->request('/auth/discord',['csrf'=>'bad'])['status']===403,'CS
 verify4($anonymous->request('/auth/discord/callback?state=invalid&code=invalid')['status']===403,'state invalide refusé');
 foreach ([
     ['100000000000000010',[],[], 'rôle MEMBER absent'],
-    ['100000000000000011',['200000000000000002'],[], 'EDITOR sans MEMBER'],
-    ['100000000000000012',['200000000000000003'],[], 'ADMIN sans MEMBER'],
     ['100000000000000013',['200000000000000001'],['absent'=>true], 'absent du serveur'],
     ['100000000000000014',['200000000000000001'],['invalid_token'=>true], 'token invalide'],
     ['100000000000000015',['200000000000000001'],['pending'=>true], 'adhésion en attente'],
@@ -33,6 +31,7 @@ foreach ([
     $client=new HttpTestClient();verify4(discordFlow($client,$id,$roles,$extra)['status']===403,'OAuth refusé : '.$label);
     $q=$pdo->prepare('SELECT COUNT(*) FROM discord_identities WHERE discord_user_id=?');$q->execute([$id]);verify4((int)$q->fetchColumn()===0,'aucun compte créé sans autorisation');
 }
+foreach(['editor'=>'200000000000000002','admin'=>'200000000000000003'] as $role=>$discordRole){$client=new HttpTestClient();verify4(discordFlow($client,$role==='editor'?'100000000000000011':'100000000000000012',[$discordRole])['status']===303,$role.' seul autorisé');verify4($client->request('/admin')['status']===200,'compte créé avec rôle autorisé');}
 $replayClient=new HttpTestClient();
 $start=$replayClient->request('/auth/discord',['csrf'=>$replayClient->token('/connexion')]);
 parse_str(parse_url($start['location'],PHP_URL_QUERY),$oauthParams);
@@ -45,7 +44,7 @@ $editor=discordLogin('100000000000000022',['200000000000000001','200000000000000
 $admin=discordLogin('100000000000000023',['200000000000000001','200000000000000003']);
 verify4($member->request('/succes')['status']===200 && str_contains($member->request('/succes')['body'],'Secrets</option>'),'catalogue et filtres accessibles au membre');
 verify4($member->request('/admin/achievements/new')['status']===403,'MEMBER ne peut pas éditer');
-verify4($editor->request('/admin/achievements/new')['status']===200 && $editor->request('/admin/settings/discord')['status']===403,'EDITOR peut éditer mais pas gérer les rôles');
+verify4($editor->request('/admin/achievements/new')['status']===200 && $editor->request('/admin/settings/discord')['status']===200,'EDITOR peut éditer et gérer MEMBER');
 verify4($admin->request('/admin/achievements/new')['status']===200,'ADMIN implique EDITOR sans rôle EDITOR');
 verify4($admin->request('/admin/users')['status']===403,'ADMIN ne peut gérer ni le propriétaire ni les comptes');
 verify4($admin->post('/admin/achievements/1/delete',['confirm'=>'1'])['status']===403,'ADMIN ne peut supprimer définitivement');
@@ -77,16 +76,16 @@ verify4(memberPost($other,'/progression',['achievement_id'=>$id,'action'=>'obtai
 $pdo->exec("UPDATE achievements SET publication_status='published',archived_at=CURRENT_TIMESTAMP WHERE id=$id");
 verify4(memberPost($other,'/progression',['achievement_id'=>$id,'action'=>'obtained'])['status']===422,'archive non déclarable');
 $pdo->exec("UPDATE achievements SET archived_at=NULL WHERE id=$id");
-// Révocation immédiate pour une opération sensible, même si le cache de lecture est frais.
+// Révocation après expiration quotidienne du cache.
 mockDiscord(['user'=>['id'=>'100000000000000022','roles'=>['200000000000000001']]]);
-verify4($editor->request('/admin/achievements/new')['status']===403,'révocation EDITOR vérifiée pour accès sensible');
+expireDiscordCache($editor);verify4($editor->request('/admin/achievements/new')['status']===403,'révocation EDITOR vérifiée pour accès sensible');
 mockDiscord(['user'=>['id'=>'100000000000000023','roles'=>['200000000000000001']]]);
-verify4($admin->request('/admin/settings/discord')['status']===403,'révocation ADMIN');
+expireDiscordCache($admin);verify4($admin->request('/admin/settings/discord')['status']===403,'révocation ADMIN');
 mockDiscord(['user'=>['id'=>'100000000000000020','roles'=>[]]]);
 age4($member);
 verify4($member->request('/succes')['status']===403 && $state()['progress']==='obtained','expiration du cache retire MEMBER sans perdre le suivi');
-verify4($owner->post('/admin/settings/discord',['action'=>'delete','level'=>'member','discord_role_id'=>'200000000000000009'])['status']===303 && $multi->request('/succes')['status']===403,'modification de politique invalide immédiatement le cache');
-mockDiscord(['outage'=>true]);
+verify4($owner->post('/admin/settings/discord',['action'=>'delete','level'=>'member','discord_role_id'=>'200000000000000009'])['status']===303 && $multi->request('/succes')['status']===200,'retrait MEMBER conserve le rôle ADMIN configuré');
+expireDiscordCache($multi);mockDiscord(['outage'=>true]);
 verify4($owner->request('/admin')['status']===200 && $owner->request('/succes')['status']===200,'propriétaire indépendant d’une panne Discord');
 verify4($multi->request('/admin/settings/discord')['status']===403,'échec API refuse les permissions sensibles');
 mockDiscord(['outage'=>false]);

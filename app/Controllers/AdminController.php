@@ -23,11 +23,11 @@ final class AdminController
             if ($path === '/admin/login') { http_response_code(404);$this->render('message',['error'=>'Page introuvable.']);return; }
             $this->user = AdminGuard::authorize($this->auth,$path);
             if (!$this->user) return;
-            if (isset($this->user['denied'])) { $this->user = null; $this->render('message',['error'=>'Accès refusé pour ce rôle.']); return; }
+            if (isset($this->user['denied'])) { $this->render('message',['error'=>isset($_SESSION['discord_failure'])?\App\Services\DiscordAccessException::messageFor($_SESSION['discord_failure']):'Accès refusé pour ce rôle.']); return; }
             if ($method === 'POST') {
                 if (!$this->auth->validCsrf($_POST['csrf'] ?? null)) { http_response_code(403); $this->render('message',['error'=>'Formulaire expiré ou invalide. Rechargez la page avant de réessayer.']); return; }
                 try { $this->write($path); }
-                catch (ValidationException $e) { http_response_code(422); if ($this->isQuickJson($path)) $this->json(['ok'=>false,'message'=>$e->getMessage()]); else $this->read($path === '/admin/achievements/save' && ($_POST['action'] ?? '') === 'quick' ? '/admin/achievements' : $path,$e->getMessage(),$_POST); }
+                catch (ValidationException $e) { http_response_code(in_array($e->getCode(),[403,409],true)?$e->getCode():422); if ($this->isQuickJson($path)) $this->json(['ok'=>false,'message'=>$e->getMessage()]); else $this->read($path === '/admin/achievements/save' && ($_POST['action'] ?? '') === 'quick' ? '/admin/achievements' : $path,$e->getMessage(),$_POST); }
                 return;
             }
             $this->read($path);
@@ -59,7 +59,7 @@ final class AdminController
     private function write(string $path): void
     {
         $actor = (int) $this->user['id'];
-        if (!PermissionService::owner($this->user) && (($_POST['action']??'')==='delete' || ($path==='/admin/settings/discord' && ($_POST['level']??'')==='admin'))) {
+        if (!PermissionService::owner($this->user) && ((($_POST['action']??'')==='delete' && $path!=='/admin/settings/discord'))) {
             http_response_code(403);$this->render('message',['error'=>'Action réservée au propriétaire.']);return;
         }
         if ($path==='/admin/settings/discord') {
@@ -109,7 +109,14 @@ final class AdminController
     private function read(string $path, ?string $error = null, array $old = []): void
     {
         if ($path==='/admin/settings/discord') {
-            $this->render('discord',['roles'=>$this->pdo->query('SELECT * FROM discord_roles ORDER BY level,label')->fetchAll(),'error'=>$error]);return;
+            $this->pdo->beginTransaction();
+            try {
+                // Same lock order as writes: form rows and expected version are one consistent snapshot.
+                $policyVersion=(int)$this->pdo->query('SELECT version FROM authorization_policy WHERE id=1 LOCK IN SHARE MODE')->fetchColumn();
+                $roles=$this->pdo->query('SELECT * FROM discord_roles ORDER BY level,label')->fetchAll();
+                $this->pdo->commit();
+            } catch (\Throwable $e) { $this->pdo->rollBack();throw $e; }
+            $this->render('discord',compact('roles','policyVersion','error'));return;
         }
         if ($path === '/admin') {
             $dashboard=(new \App\Services\AdminDashboardService($this->pdo))->overview($this->user);
@@ -123,7 +130,7 @@ final class AdminController
             $item = $id ? $this->repository->achievement($id) : [];
             if ($id && !$item) { http_response_code(404);$this->render('message',['error'=>'Succès introuvable.']);return; }
             if ($old) {
-                foreach (['name','slug','description','guide_markdown','guide_revision','unlock_conditions','category_id','rarity','secret_type','source_url','verification_status','publication_status',...array_keys(CatalogService::REWARDS)] as $key) $item[$key] = is_string($old[$key] ?? null) ? $old[$key] : '';
+                foreach (['name','slug','description','participants_required','guide_markdown','guide_revision','unlock_conditions','category_id','rarity','secret_type','source_url','verification_status','publication_status',...array_keys(CatalogService::REWARDS)] as $key) $item[$key] = is_string($old[$key] ?? null) ? $old[$key] : '';
                 $item['title_rewards_known'] = isset($old['title_rewards_known']);
                 $item['title_ids'] = is_array($old['title_ids'] ?? null) ? array_map('intval',array_filter($old['title_ids'],'is_scalar')) : [];
             }

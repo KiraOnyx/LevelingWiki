@@ -32,5 +32,5 @@ final class HttpTestClient {
         return $m[1];
     }
     public function login(string $identifier,string $password): array { return $this->request((string)getenv('OWNER_LOGIN_PATH'),['csrf'=>$this->token((string)getenv('OWNER_LOGIN_PATH')),'identifier'=>$identifier,'password'=>$password]); }
-    public function post(string $path,array $data,?array $file=null): array { return $this->request($path,['csrf'=>$this->token(),...$data],$file); }
+    public function post(string $path,array $data,?array $file=null): array { if($path==='/admin/settings/discord'&&!array_key_exists('policy_version',$data)){ $page=$this->request($path);if(preg_match('/name="policy_version" value="([0-9]+)"/',$page['body'],$version))$data['policy_version']=$version[1]; } return $this->request($path,['csrf'=>$this->token(),...$data],$file); }
 }

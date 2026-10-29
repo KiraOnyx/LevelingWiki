@@ -6,6 +6,10 @@ final class CatalogService
 {
     public const REWARDS = ['reward_xp' => 'XP', 'reward_gold' => 'Pièces', 'reward_gems' => 'Gemmes', 'reward_keys' => 'Clés'];
 
+    public static function resources():array {
+        $icons=['xp'=>'spark','gold'=>'medal','gems'=>'spark','keys'=>'lock'];$result=[];
+        foreach(self::REWARDS as $field=>$label){$key=substr($field,7);$result[$key]=['field'=>$field,'label'=>$label,'icon'=>$icons[$key]??'medal'];}return $result;
+    }
     public static function rewardsKnown(array $item): bool
     {
         foreach (self::REWARDS as $field => $label) {

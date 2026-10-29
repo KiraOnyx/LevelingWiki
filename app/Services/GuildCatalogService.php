@@ -61,5 +61,21 @@ final class GuildCatalogService
             $this->pdo->commit();return $id;
         }catch(\Throwable $e){$this->pdo->rollBack();if($e instanceof \PDOException&&$e->getCode()==='23000')throw new ValidationException('Conflit : level actif ou slug déjà utilisé, ou référence invalide.');throw $e;}
     }
+    public function deleteMilestone(array $data,array $actor):void {
+        if(!PermissionService::member($actor)||!PermissionService::admin($actor))throw new \RuntimeException('Suppression réservée aux administrateurs.',403);
+        if(($data['confirm']??'')!=='1')throw new ValidationException('Confirmez explicitement la suppression définitive.');
+        $id=Input::id($data['id']??null);$version=Input::id($data['version']??null);
+        $this->pdo->beginTransaction();
+        try {
+            $q=$this->pdo->prepare('SELECT * FROM guild_milestones WHERE id=? FOR UPDATE');$q->execute([$id]);$before=$q->fetch();
+            if(!$before)throw new \RuntimeException('Palier introuvable.',404);
+            if((int)$before['version']!==$version)throw new \RuntimeException('Modification concurrente : rechargez le palier avant de le supprimer.',409);
+            $q=$this->pdo->prepare('SELECT id FROM guild_milestone_rewards WHERE milestone_id=? FOR UPDATE');$q->execute([$id]);$rewardIds=array_map('intval',$q->fetchAll(PDO::FETCH_COLUMN));
+            $this->pdo->prepare('DELETE FROM guild_milestone_rewards WHERE milestone_id=?')->execute([$id]);
+            $this->pdo->prepare('DELETE FROM guild_milestones WHERE id=?')->execute([$id]);
+            Audit::record($this->pdo,(int)$actor['id'],'guild.catalog.delete','guild_milestone',$id,['title'=>$before['title'],'level'=>$before['level'],'deleted_rewards'=>count($rewardIds),'deleted_reward_ids'=>$rewardIds]);
+            $this->pdo->commit();
+        }catch(\Throwable $e){if($this->pdo->inTransaction())$this->pdo->rollBack();if($e instanceof \PDOException && $e->getCode()==='23000')throw new \RuntimeException('Suppression impossible : des données dépendent encore de ce palier. Aucune suppression effectuée.',409);throw $e;}
+    }
     private function order(mixed $v):int{if(!is_scalar($v)||!preg_match('/^[0-9]{1,9}$/D',(string)$v))throw new ValidationException('display_order doit être un entier entre 0 et 999999999.');return (int)$v;}
 }

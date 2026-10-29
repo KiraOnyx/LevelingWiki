@@ -1,4 +1,4 @@
-import { filterItems } from './catalog-core.mjs?v=7';
+import { filterItems } from './catalog-core.mjs?v=8';
 const items=JSON.parse(document.querySelector('#catalog-data')?.textContent||'[]');
 const account=JSON.parse(document.querySelector('#account-progress')?.textContent||'null');
 const obtained=new Set(account?.obtained||[]);
@@ -59,7 +59,7 @@ document.addEventListener('progress-saved',event=>{
         document.querySelectorAll('[data-completion]').forEach(el=>el.hidden=!(summary.total>0&&summary.remaining===0));
     }
     if(rewards)document.querySelectorAll('[data-estimate]').forEach(el=>{const reward=rewards[el.dataset.estimate];el.textContent=reward.known;const note=document.querySelector('[data-estimate-note="'+el.dataset.estimate+'"]');if(note)note.textContent=Number(reward.unknown)>0?'Partiel · '+reward.unknown+' récompense(s) inconnue(s)':'Valeurs documentées';});
-    if(categories)document.querySelectorAll('[data-category-progress]').forEach(el=>{const category=categories[el.dataset.categoryProgress];if(category){el.querySelector('strong').textContent=category.obtained+' / '+category.total;el.querySelector('progress').value=category.obtained;}});
+    if(categories)document.querySelectorAll('[data-category-progress]').forEach(el=>{const category=categories[el.dataset.categoryProgress];if(category){el.querySelector('strong').textContent=category.obtained+' / '+category.total+' · '+String(category.percent??0).replace('.',',')+' %';el.querySelector('[data-category-fill]')?.setAttribute('width',category.percent??0);el.querySelector('progress').value=category.obtained;}});
     const activeCard=document.activeElement?.closest('[data-card]');
     document.querySelectorAll('[data-detail-state]').forEach(el=>el.textContent=event.detail.progress==='obtained'?'Marqué comme obtenu':'Non obtenu');
     updateResults();

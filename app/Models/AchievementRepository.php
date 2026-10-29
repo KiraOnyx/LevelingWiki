@@ -10,7 +10,7 @@ final class AchievementRepository
     public function all(): array
     {
         $rows = $this->pdo->query("SELECT a.id, a.slug, a.name, a.description, a.category_id,
-            a.rarity, a.secret_type, a.reward_xp, a.reward_gold, a.reward_gems, a.reward_keys,
+            a.rarity, a.secret_type, a.participants_required, a.reward_xp, a.reward_gold, a.reward_gems, a.reward_keys,
             a.title_rewards_known, a.verification_status, a.created_at,
             GREATEST(a.updated_at, COALESCE(d.updated_at, a.updated_at)) AS updated_at,
             c.slug AS category_slug,c.name AS category,c.color AS category_color,a.source_url, d.unlock_conditions, d.icon_path, d.evidence_path

@@ -1,13 +1,13 @@
 // Shared, keyboard-accessible confirmation; text is never interpreted as HTML.
-function confirmAction(message) {
+function confirmAction(message, destructive=false) {
     return new Promise(resolve => {
         const previous=document.activeElement, dialog=document.createElement('dialog');
         dialog.className='confirmation-dialog';dialog.setAttribute('aria-label','Confirmer cette action');
         const heading=document.createElement('h2');heading.textContent='Confirmer cette action';
         const text=document.createElement('p');text.textContent=message;
         const actions=document.createElement('div');actions.className='dialog-actions';
-        const cancel=document.createElement('button');cancel.className='secondary-button';cancel.textContent='Conserver';
-        const accept=document.createElement('button');accept.className='primary-button';accept.textContent='Confirmer';
+        const cancel=document.createElement('button');cancel.className='secondary-button';cancel.textContent=destructive?'Annuler':'Conserver';
+        const accept=document.createElement('button');accept.className=destructive?'secondary-button danger-button':'primary-button';accept.textContent=destructive?'Supprimer définitivement':'Confirmer';
         const finish=value=>{dialog.close();dialog.remove();previous?.focus();resolve(value);};
         cancel.addEventListener('click',()=>finish(false));accept.addEventListener('click',()=>finish(true));
         dialog.addEventListener('cancel',event=>{event.preventDefault();finish(false);});
@@ -24,8 +24,9 @@ document.querySelectorAll('form[method="post"]').forEach(form => {
         const submitter=event.submitter, data=new FormData(form);
         const action=data.get('action')||submitter?.value;
         const inline=form.hasAttribute('data-inline-progress');
-        if((action==='delete'||(inline&&action==='not_started')) && !await confirmAction(action==='delete'?'Supprimer définitivement cet élément ?':'Annuler votre déclaration d’obtention ? Le succès restera consultable dans le Codex.')) {unlock();return;}
-        if ((form.dataset.confirm || action==='archive' || data.get('archived')==='1') && !await confirmAction(form.dataset.confirm || 'Archiver cet élément ? Il sera retiré des listes actives ; ses références seront conservées.')) {unlock();return;}
+        if((action==='delete'||(inline&&action==='not_started')) && !await confirmAction(action==='delete'?(form.dataset.deleteConfirm||form.dataset.confirm||'Supprimer définitivement cet élément ?'):'Annuler votre déclaration d’obtention ? Le succès restera consultable dans le Codex.',action==='delete'&&!form.dataset.deleteConfirm)) {unlock();return;}
+        if (action!=='delete' && (form.dataset.confirm || action==='archive' || data.get('archived')==='1') && !await confirmAction(form.dataset.confirm || 'Archiver cet élément ? Il sera retiré des listes actives ; ses références seront conservées.')) {unlock();return;}
+        if(action==='delete'){const confirmation=form.querySelector('[name=confirm]');if(confirmation)confirmation.checked=true;}
         form.setAttribute('aria-busy','true');
         if(!inline){
             // Native submission after confirmation; preserve clicked button name/value.

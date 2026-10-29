@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 namespace App\Controllers;
-use App\Services\{Database,Auth,DiscordAuthService,PermissionService,PersonalService,Input,ValidationException,CatalogService};
+use App\Services\{Database,Auth,DiscordAuthService,PermissionService,PersonalService,Input,ValidationException,CatalogService,DiscordAccessException};
 use App\Models\AchievementRepository;
 final class MemberController {
     public function dispatch(string $path): void {
@@ -12,6 +12,7 @@ final class MemberController {
             if ($path==='/connexion') {self::render('login',['csrf'=>$auth->csrf()]);return;}
             if ($path==='/auth/discord/callback' && $method==='GET') {
                 try {(new DiscordAuthService($pdo))->callback($_GET);header('Location: /profil',true,303);}
+                catch (DiscordAccessException $e) {http_response_code($e->status());self::render('denied',['error'=>$e->getMessage(),'errorTitle'=>'Connexion Discord impossible','csrf'=>$auth->csrf()]);}
                 catch (ValidationException $e) {http_response_code(403);self::render('denied',['error'=>$e->getMessage(),'csrf'=>$auth->csrf()]);}
                 return;
             }
@@ -50,15 +51,16 @@ final class MemberController {
             $data=$service->overview((int)$user['id']);
             $q=$pdo->prepare('SELECT * FROM discord_identities WHERE user_id=?');$q->execute([$user['id']]);$identity=$q->fetch();
             self::render($path==='/'?'home':'profile',$data+['user'=>$user,'identity'=>$identity,'csrf'=>$auth->csrf()]);
-        } catch (ValidationException $e) {http_response_code(422);self::render('denied',['error'=>$e->getMessage()]);}
+        } catch (DiscordAccessException $e) {http_response_code($e->status());self::render('denied',['error'=>$e->getMessage(),'errorTitle'=>'Connexion Discord impossible']);}
+        catch (ValidationException $e) {http_response_code(422);self::render('denied',['error'=>$e->getMessage()]);}
         catch (\Throwable) {http_response_code(503);self::render('denied',['error'=>'Service momentanément indisponible. Aucun accès supplémentaire n’a été accordé.']);}
     }
     public static function requireUser(Auth $auth,bool $sensitive=false): ?array {
         $user=$auth->user($sensitive);
-        if (!$user) {header('Location: /connexion',true,303);return null;}
+        if (!$user) {header('Location: /connexion'.($auth->expired?'?expired=1':''),true,303);return null;}
         if (!PermissionService::member($user)) {
             http_response_code(403);
-            self::render('denied',['error'=>$user['role']==='legacy'?'Compte local conservé. La désignation explicite du propriétaire est nécessaire via la commande CLI.':'Accès refusé : vérifiez votre rôle MEMBER ou reconnectez-vous à Discord.','csrf'=>$auth->csrf()]);
+            self::render('denied',['error'=>$user['role']==='legacy'?'Compte local conservé. La désignation explicite du propriétaire est nécessaire via la commande CLI.':DiscordAccessException::messageFor($_SESSION['discord_failure']??'roles'),'csrf'=>$auth->csrf()]);
             return null;
         }
         return $user;

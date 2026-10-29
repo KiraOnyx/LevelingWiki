@@ -1,0 +1,27 @@
+<?php
+declare(strict_types=1);
+require dirname(__DIR__).'/app/bootstrap.php';require __DIR__.'/discord-support.php';
+if(PHP_SAPI!=='cli'||getenv('APP_ENV')!=='test'||getenv('DB_DATABASE')!=='levelingwiki_test')exit(1);
+function accessCheck(bool $ok,string $label):void{if(!$ok)throw new RuntimeException($label);echo "OK : $label\n";}
+$p=App\Services\Database::connect();seedDiscordRoles($p);
+$m='200000000000000001';$e='200000000000000002';$a='200000000000000003';
+$member=discordLogin('100000000000000981',[$m]);$editor=discordLogin('100000000000000982',[$m,$e]);$admin=discordLogin('100000000000000983',[$m,$e,$a]);
+foreach(['/','/succes','/profil','/tour-de-guilde','/admin','/admin/achievements','/admin/settings/discord','/admin/tour-de-guilde/paliers'] as $path){$r=$member->request($path);accessCheck(!preg_match('~(?:href|action)="/admin(?:[/?"]|$)~',$r['body']),'MEMBER sans liens administratifs : '.$path);if(str_starts_with($path,'/admin'))accessCheck($r['status']===403,'route refusée : '.$path);}
+$r=$member->request('/admin');accessCheck(str_contains($r['body'],'Retour au Codex'),'retour membre adapté');
+$r=$editor->request('/admin/tour-de-guilde/paliers');accessCheck($r['status']===200&&!str_contains($r['body'],'href="/admin/history"')&&!str_contains($r['body'],'Supprimer définitivement'),'éditeur : catalogue sans historique ni suppression');
+$r=$editor->request('/admin/settings/discord');accessCheck($r['status']===200&&str_contains($r['body'],'+ Ajouter un rôle MEMBER')&&!str_contains($r['body'],'id="roles-admin"'),'éditeur : gestion MEMBER uniquement');
+$r=$admin->request('/admin/settings/discord');accessCheck($r['status']===200&&str_contains($r['body'],'Consulter Test admin')&&!str_contains($r['body'],'+ Ajouter un rôle ADMIN'),'ADMIN : rôles ADMIN consultables uniquement');
+$service=new App\Services\DiscordAuthService($p);accessCheck($service->role(['roles'=>[$a,$e,$m]])==='admin','priorité ADMIN sur EDITOR');accessCheck($service->role(['roles'=>[$e,$m]])==='editor','priorité EDITOR sur MEMBER');
+foreach([[$e],[$a],[]] as $roles){$r=discordFlow(new HttpTestClient(),'100000000000000984',$roles);accessCheck($roles?$r['status']===303:($r['status']===403&&str_contains($r['body'],'au moins un rôle')), 'un rôle autorisé suffit, aucun reste refusé');}
+$r=discordFlow(new HttpTestClient(),'100000000000000985',[$m],['absent'=>true]);accessCheck($r['status']===403&&str_contains($r['body'],'ne fait pas partie du serveur'),'absence serveur distincte');
+$r=discordFlow(new HttpTestClient(),'100000000000000986',[$m],['invalid_token'=>true]);accessCheck($r['status']===403&&str_contains($r['body'],'autorisation Discord a échoué'),'OAuth invalide distinct');
+$r=(new HttpTestClient())->request('/auth/discord/callback?state=secret-state&code=secret-code');accessCheck($r['status']===403&&str_contains($r['body'],'Connexion expirée'),'callback session invalide');accessCheck(!str_contains($r['body'],'secret-code')&&!str_contains($r['body'],'secret-state'),'paramètres sensibles absents des erreurs');
+$c=new HttpTestClient();$start=$c->request('/auth/discord',['csrf'=>$c->token('/connexion')]);parse_str(parse_url($start['location'],PHP_URL_QUERY),$params);
+mockDiscord(['outage'=>true]);try{$r=$c->request('/auth/discord/callback?'.http_build_query(['state'=>$params['state'],'code'=>'private-code']));accessCheck($r['status']===503&&str_contains($r['body'],'momentanément injoignable'),'panne Discord distincte');accessCheck(!str_contains($r['body'],'private-code')&&!str_contains($r['body'],'isolated-test-only'),'panne sans secrets');expireDiscordCache($admin);$r=$admin->request('/admin');accessCheck($r['status']===403&&!str_contains($r['body'],'href="/admin"'),'échec fermé sans navigation privilégiée');}finally{mockDiscord(['outage'=>false]);}
+// Existing role-management permission: ADMIN can remove MEMBER/EDITOR mappings, never ADMIN.
+$role='200000000000000098';$r=$admin->post('/admin/settings/discord',['action'=>'save','level'=>'editor','discord_role_id'=>$role,'label'=>'Test audit']);accessCheck($r['status']===303,'ajout mapping isolé');$r=$admin->post('/admin/settings/discord',['action'=>'delete','level'=>'editor','discord_role_id'=>$role]);accessCheck($r['status']===303,'retrait mapping EDITOR autorisé à ADMIN');
+// Expire only the disposable test session.
+$code='session_id(trim(stream_get_contents(STDIN)));session_start();$_SESSION["last_seen"]=0;session_write_close();';$proc=proc_open([PHP_BINARY,'-r',$code],[0=>['pipe','r'],1=>['pipe','w'],2=>['pipe','w']],$pipes);fwrite($pipes[0],$member->cookies['lw_session']);fclose($pipes[0]);fclose($pipes[1]);fclose($pipes[2]);proc_close($proc);
+$r=$member->request('/profil');accessCheck($r['status']===303&&$r['location']==='/connexion?expired=1','session expirée distinguée');accessCheck(str_contains($member->request($r['location'])['body'],'Votre session a expiré'),'message expiration compréhensible');
+$config=require dirname(__DIR__).'/config/discord.php';
+foreach(['client_id'=>'invalid','client_secret'=>'','redirect_uri'=>'http://remote.invalid/callback'] as $field=>$value){try{(new App\Services\DiscordClient([...$config,$field=>$value]))->configured();accessCheck(false,'configuration refusée');}catch(App\Services\DiscordAccessException $ex){accessCheck($ex->reason==='configuration'&&$ex->status()===503&&!str_contains($ex->getMessage(),'isolated-test-only'),'configuration invalide distincte : '.$field);}}

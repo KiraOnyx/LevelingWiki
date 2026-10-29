@@ -50,8 +50,9 @@ towerCheck(!str_contains($member->request('/tour-de-guilde')['body'],'#division-
 towerCheck(count($repo->history($id))===2,'historique conservé après archivage');
 $change['version']=4;$change['archived']='0';
 towerCheck($post($admin,'/admin/tour-de-guilde/save',$change)['status']===303,'restauration sans perte');
-// Role loss invalidates the scope even if the association remains.
+// Discord role loss invalidates the scope at the daily verification.
 mockDiscord(['user'=>['id'=>'100000000000000903','roles'=>['200000000000000001']]]);
+expireDiscordCache($other);
 towerCheck($post($other,'/admin/tour-de-guilde/level',['id'=>$id,'version'=>5,'level'=>160])['status']===403,'rôle editor retiré : écriture refusée');
 $q=$p->prepare("SELECT COUNT(*) FROM audit_logs WHERE entity_type='guild_division' AND entity_id=? AND new_values LIKE '%master_ids%'");$q->execute([$id]);towerCheck((int)$q->fetchColumn()>=3,'associations et métadonnées auditées');
 towerCheck($member->request('/tour-de-guilde',['csrf'=>$member->token('/profil')])['status']===405,'page métier en lecture seule');

@@ -44,6 +44,23 @@ final class PersonalService {
         }
         return $rows;
     }
+    /** Fixed-size aggregate, no joins to titles: each available achievement counts once. */
+    public function rewardTotals(int $userId):array {
+        $parts=[];
+        foreach(CatalogService::REWARDS as $field=>$label){
+            $key=substr($field,7); // trusted schema constants, never request data
+            $parts[]="COALESCE(SUM(CASE WHEN p.progress='obtained' THEN a.$field ELSE 0 END),0) AS {$key}_known";
+            $parts[]="COALESCE(SUM(CASE WHEN p.progress='obtained' THEN 0 ELSE a.$field END),0) AS {$key}_remaining";
+            $parts[]="COALESCE(SUM(a.$field),0) AS {$key}_potential";
+            $parts[]="COALESCE(SUM(a.$field IS NULL AND p.progress='obtained'),0) AS {$key}_unknown";
+            $parts[]="COALESCE(SUM(a.$field IS NULL AND (p.progress IS NULL OR p.progress<>'obtained')),0) AS {$key}_remaining_unknown";
+            $parts[]="COALESCE(SUM(a.$field IS NULL),0) AS {$key}_potential_unknown";
+        }
+        $q=$this->pdo->prepare('SELECT '.implode(',',$parts)." FROM achievements a LEFT JOIN personal_achievements p ON p.achievement_id=a.id AND p.user_id=? WHERE a.publication_status='published' AND a.archived_at IS NULL");
+        $q->execute([$userId]);$row=$q->fetch();$result=[];
+        foreach(CatalogService::REWARDS as $field=>$label){$key=substr($field,7);foreach(['known','remaining','potential','unknown','remaining_unknown','potential_unknown'] as $part)$result[$key][$part]=(string)$row[$key.'_'.$part];}
+        return $result;
+    }
     public function overview(int $userId): array {
         $repository=new \App\Models\AchievementRepository($this->pdo);
         $items=$repository->all();$rows=$this->rows($userId);$byId=array_column($rows,null,'achievement_id');
@@ -58,12 +75,8 @@ final class PersonalService {
             }
         }
         usort($done,fn($a,$b)=>strcmp($b['obtained_at']??'',$a['obtained_at']??'') ?: ((int)$b['id']<=>(int)$a['id']));
-        $rewards=[];
-        foreach(['xp','gold','gems','keys'] as $key){
-            // DECIMAL SUM preserves unsigned BIGINT precision; never coalesce individual NULLs into zero.
-            $q=$this->pdo->prepare("SELECT COALESCE(SUM(a.reward_$key),0) AS known,COALESCE(SUM(a.reward_$key IS NULL),0) AS unknown FROM personal_achievements p JOIN achievements a ON a.id=p.achievement_id WHERE p.user_id=? AND p.progress='obtained' AND a.publication_status='published' AND a.archived_at IS NULL");
-            $q->execute([$userId]);$rewards[$key]=$q->fetch();
-        }
+        $rewards=$this->rewardTotals($userId);
+        foreach($categories as &$category)$category['percent']=$category['total']?round($category['obtained']/$category['total']*100,1):0;unset($category);
         $titles=[];$unknownTitles=0;foreach($done as $item){$titles=array_merge($titles,$item['titles']);$unknownTitles+=(int)!$item['title_rewards_known'];}
         $total=count($items);$obtained=count($done);
         return ['items'=>$items,'rows'=>$rows,'personalById'=>$byId,'available'=>array_column($items,null,'id'),'categoriesProgress'=>$categories,'recent'=>array_slice($done,0,5),'rewardsEstimate'=>$rewards,'earnedTitles'=>array_values(array_unique($titles)),'unknownTitles'=>$unknownTitles,'summary'=>['total'=>$total,'obtained'=>$obtained,'remaining'=>$total-$obtained,'percent'=>$total?round($obtained/$total*100,1):0]];
