@@ -2,7 +2,9 @@
 document.querySelectorAll('[data-admin-disclosure]').forEach(panel=>{
   const summary=panel.querySelector(':scope > summary');
   const close=()=>{panel.querySelectorAll('form').forEach(form=>form.reset());panel.open=false;summary.focus();};
-  const cancel=document.createElement('button');cancel.type='button';cancel.className='secondary-button';cancel.textContent='Annuler';cancel.addEventListener('click',close);(panel.querySelector('.discord-role-actions')||panel).append(cancel);
+  let cancel=panel.querySelector('[data-disclosure-cancel]');
+  if(!cancel){cancel=document.createElement('button');cancel.type='button';cancel.className='secondary-button';cancel.textContent='Annuler';(panel.querySelector('.discord-role-actions')||panel).append(cancel);}
+  cancel.addEventListener('click',event=>{event.preventDefault();close();});
   panel.addEventListener('toggle',()=>{if(panel.open)panel.querySelector('input:not([type=hidden]),select,textarea')?.focus({preventScroll:true});});
   panel.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();close();}});
 });

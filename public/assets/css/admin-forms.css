@@ -44,3 +44,17 @@ body.admin-theme{--ad-xs:.5rem;--ad-sm:.75rem;--ad-md:1rem;--ad-lg:1.5rem;--ad-x
 .admin-theme .discord-role-actions{grid-column:1/-1;justify-content:flex-start;gap:.5rem}
 .admin-theme .discord-role-identity code{font-size:.8125rem;min-height:2.75rem;overflow-wrap:anywhere}
 .admin-theme [data-admin-disclosure]>summary{overflow-wrap:anywhere}
+
+/* Reward information stays visible while its native editor is closed. */
+.admin-theme .reward-editor-card{border:1px solid var(--line);border-radius:var(--ad-radius);padding:var(--ad-md);margin-top:var(--ad-sm);min-width:0}
+.admin-theme .reward-card-heading{display:flex;gap:var(--ad-sm);align-items:start;margin-bottom:var(--ad-sm)}
+.admin-theme .reward-card-heading .icon{width:1.5rem;height:1.5rem}.admin-theme .reward-card-heading>div{min-width:0}
+.admin-theme .reward-card-heading h3{font-size:1.0625rem;margin:0}.admin-theme .reward-card-heading p{margin:.25rem 0 0}
+.admin-theme .reward-editor-card>details>summary{width:fit-content;padding:.625rem 1rem;list-style:none}
+.admin-theme .reward-editor-card>details>summary::-webkit-details-marker{display:none}
+.admin-theme .reward-editor-card>.catalog-cycle{margin-top:var(--ad-sm)}
+.admin-theme .reward-editor-card{display:flex;flex-wrap:wrap;gap:var(--ad-sm);align-items:start}
+.admin-theme .reward-card-heading{flex-basis:100%;margin:0}
+.admin-theme .reward-editor-card>details{min-width:0;margin:0}
+.admin-theme .reward-editor-card>details[open]{flex-basis:100%}
+.admin-theme .reward-editor-card>details>summary,.admin-theme .reward-editor-card>.catalog-cycle,.admin-theme .reward-editor-card>.catalog-cycle button{margin:0}

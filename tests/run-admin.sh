@@ -1,7 +1,7 @@
 #!/bin/sh
 set -eu
 cd "$(dirname "$0")/.."
-compose_test() { docker compose --env-file .env -f tests/compose.yaml "$@"; }
+compose_test() { docker compose --env-file /dev/null -f tests/compose.yaml "$@"; }
 # Ce projet nommé levelingwiki-tests ne partage ni base, ni réseau, ni stockage avec levelingwiki.
 compose_test down
 trap 'compose_test down' EXIT
@@ -26,6 +26,7 @@ compose_test exec -T web php tests/guild-catalog.php
 compose_test exec -T web php tests/tower-prototype.php
 compose_test exec -T web php tests/ux-unified.php
 compose_test exec -T web php tests/admin-forms.php
+compose_test exec -T web php tests/reward-ux.php
 compose_test exec -T web php tests/admin-dashboard.php
 compose_test exec -T web php tests/guides.php
 compose_test exec -T web php tests/phase-d.php

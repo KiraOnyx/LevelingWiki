@@ -13,9 +13,10 @@ $kindLabels = ['personal'=>'Personnelle', 'collective'=>'Collective', 'unconfirm
         <div class="tower-summary"><span><strong><?= count($divisions) ?></strong> divisions</span><span><strong><?= count($levels) ?></strong> paliers connus</span><span><strong><?= $leader ?></strong> niveau de tête</span></div>
     </header>
     <?php if(!$isPrototype && !$divisions): ?><p class="admin-notice">Aucune division active pour le moment. Les administrateurs peuvent créer les divisions depuis l’administration.</p><?php endif; ?>
-    <?php if(!$isPrototype && App\Services\PermissionService::edit($user)): ?><p><a class="secondary-button" href="/admin/tour-de-guilde">Gérer les divisions</a></p><?php endif; ?>
     <div class="tower-layout">
         <aside class="tower-sidebar">
+    <?php if(!$isPrototype && App\Services\PermissionService::edit($user)): ?><div class="tower-management"><a class="secondary-button" href="/admin/tour-de-guilde">Gérer les divisions</a></div><?php endif; ?>
+
             <details class="tower-navigation" open>
                 <summary><?= icon('filter') ?> Explorer la tour <span aria-hidden="true">⌃</span></summary>
                 <details class="tower-settings"><summary>Rendu et ambiance</summary><div class="tower-render-controls">

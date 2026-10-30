@@ -1,2 +1,6 @@
 /* Navigation only; architecture, anchors and geometry remain unchanged. */
 .tower-settings{border-bottom:1px solid #ffffff18;margin:0 .75rem}.tower-settings>summary{cursor:pointer;min-height:2.75rem;padding:.65rem .25rem;font-size:.875rem}.tower-settings .tower-render-controls{padding:.5rem 0 .75rem;border:0}.tower-navigation nav{padding:.5rem .75rem}.tower-navigation nav a{min-height:2.75rem;padding:.5rem .625rem}.tower-navigation nav p{margin:.5rem .625rem;font-size:.6875rem}.tower-settings select{min-height:2.75rem;width:100%;max-width:100%}
+
+.tower-management{margin:0 0 .75rem}.tower-management>a{display:flex;width:100%;justify-content:center;box-sizing:border-box;white-space:normal;text-align:center}
+@media(max-width:850px){.tower-management{grid-column:1/-1;margin:0}.tower-sidebar{gap:.75rem}}
+@media(max-width:600px){.tower-management{margin-bottom:.75rem}.tower-sidebar .tower-navigation,.tower-sidebar .tower-navigation:not([open]){position:static;width:100%;max-width:none;max-height:none;margin-bottom:.75rem}.tower-sidebar .tower-navigation nav{max-height:none;overflow:visible}}

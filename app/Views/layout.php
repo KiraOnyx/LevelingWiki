@@ -19,7 +19,7 @@ $hasYggdrasil = in_array($page, ['member/home', 'catalog', 'member/achievements'
     <?php if(in_array($page,['catalog','detail','member/achievements','member/home','member/profile'],true)): ?><link rel="stylesheet" href="/assets/css/personal-rewards.css?v=1"><?php endif; ?>
     <?php if ($page === 'tower/prototype'): ?>
     <link rel="stylesheet" href="/assets/css/tower.css?v=phase-c-1">
-    <link rel="stylesheet" href="/assets/css/tower-relief.css?v=phase-c-1"><link rel="stylesheet" href="/assets/css/tower-navigation.css?v=1">
+    <link rel="stylesheet" href="/assets/css/tower-relief.css?v=phase-c-1"><link rel="stylesheet" href="/assets/css/tower-navigation.css?v=2">
     <script type="module" src="/assets/js/tower.js?v=phase-c-1"></script>
     <?php endif; ?>
     <script defer src="/assets/js/interface.js?v=15"></script>

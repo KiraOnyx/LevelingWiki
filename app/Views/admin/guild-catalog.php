@@ -50,11 +50,18 @@ $field('archived','Statut',$row,'text',['0'=>'Actif','1'=>'Archivé']); ?></div>
 <?php if($selected['archived_at']): ?><p>Restaurez ce palier pour éditer ses récompenses.</p><?php else: ?>
 <p>Chaque récompense peut être connue ou inconnue indépendamment. « Inconnue » masque son type, sa quantité, sa description et sa distribution aux membres.</p>
 <?php foreach([...$rewards,[]] as $reward): $row=$values('reward',$reward);$options=[''=>'À classer / inconnue'];foreach($types as $t)if(!$t['archived_at']||(string)$t['id']===(string)($row['type_id']??''))$options[(string)$t['id']]=$t['name'].($t['archived_at']?' (archivé)':''); ?>
-<details class="admin-panel" data-admin-disclosure <?= ($failedEntity==='reward'&&(string)($_POST['id']??'')===(string)($reward['id']??''))?'open':'' ?>><summary><?= $reward?'Modifier la récompense #'.(int)$reward['id'].' · '.e(App\Models\GuildCatalogRepository::present($reward)['label']).($reward['archived_at']?' · Archivée':''):'+ Ajouter une récompense' ?></summary>
+<article class="reward-editor-card">
+<?php if($reward): $presentation=App\Models\GuildCatalogRepository::present($reward); ?>
+<header class="reward-card-heading"><span aria-hidden="true"><?= icon($presentation['icon']) ?></span><div><h3><?= $reward['visibility']==='unknown'?'Récompense inconnue':e(trim($presentation['label'])) ?></h3>
+<p>Distribution : <?= e($reward['visibility']==='unknown'?'Masquée aux membres':(['individual'=>'Par membre','collective'=>'Collective','unconfirmed'=>'À confirmer'][$reward['distribution']])) ?></p>
+<?php if($reward['archived_at']): ?><small>Archivée</small><?php endif; ?></div></header>
+<?php endif; ?>
+<details data-admin-disclosure <?= ($failedEntity==='reward'&&(string)($_POST['id']??'')===(string)($reward['id']??''))?'open':'' ?>><summary class="<?= $reward?'secondary-button':'primary-button' ?>"><?= $reward?'Modifier':'+ Ajouter une récompense' ?></summary>
 <form method="post" action="/admin/tour-de-guilde/recompenses/save" class="admin-form" data-catalog-form><?php $hidden('reward',$row); ?><input type="hidden" name="milestone_id" value="<?= (int)$selected['id'] ?>">
 <div class="form-grid"><?php $field('type_id','Type',$row,'text',$options);$field('quantity','Quantité entière',$row,'text');$field('distribution','Distribution',$row+['distribution'=>'unconfirmed'],'text',['individual'=>'Individuelle','collective'=>'Collective','unconfirmed'=>'À confirmer']);$field('visibility','Visibilité',$row+['visibility'=>'unknown'],'text',['known'=>'Connue','unknown'=>'Inconnue — ???']);$field('display_order','Ordre',$row+['display_order'=>0],'number');$field('archived','Statut',$row,'text',['0'=>'Active','1'=>'Archivée']); ?></div>
 <?php $field('description','Description (requise pour une récompense connue sans type)',$row,'textarea'); ?>
 <p data-catalog-preview role="status">Aperçu membre : <?= $reward?e(App\Models\GuildCatalogRepository::present($reward)['label']):'???' ?></p>
-<button class="primary-button"><?= $reward?'Enregistrer la récompense':'Ajouter la récompense' ?></button><p class="form-feedback" role="status"></p></form><?php if($reward)$cycle('reward',$reward); ?></details>
+<div class="admin-actions"><button class="primary-button"><?= $reward?'Enregistrer':'Ajouter' ?></button><a class="secondary-button" data-disclosure-cancel href="<?= e($listUrl) ?>&amp;id=<?= (int)$selected['id'] ?>#catalog-editor">Annuler</a></div><p class="form-feedback" role="status"></p></form></details>
+<?php if($reward)$cycle('reward',$reward); ?></article>
 <?php endforeach; endif; ?></section><?php endif; ?>
 <?php endif; ?><?php if(App\Services\PermissionService::admin($user)): ?><p><a href="/admin/history">Consulter le journal d’audit</a></p><?php endif; ?>
