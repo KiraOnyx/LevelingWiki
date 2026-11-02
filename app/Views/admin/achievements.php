@@ -4,4 +4,4 @@
 <input type="hidden" name="csrf" value="<?= e($csrf) ?>"><input type="hidden" name="action" value="quick"><input type="hidden" name="id" value="<?= $record['id'] ?>"><input type="hidden" name="field" value="<?= e($field) ?>"><input type="hidden" name="previous" value="<?= e($record[$field]) ?>">
 <label><span class="sr-only"><?= $field==='publication_status'?'État':'Vérification' ?> — <?= e($record['name']) ?></span><select name="value"><?php foreach ($options as $value=>$label): ?><option value="<?= e($value) ?>" <?= $record[$field]===$value?'selected':'' ?>><?= e($label) ?></option><?php endforeach; ?></select></label>
 <button class="secondary-button" data-quick-submit>Enregistrer</button>
-</form><?php endif; ?></td><?php endforeach; ?><td><a class="table-action" href="/admin/achievements/<?= $record['id'] ?>/edit">Modifier</a></td></tr><?php endforeach; ?></tbody></table></div><?php endif; ?></section>
+</form><?php endif; ?></td><?php endforeach; ?><td><a class="secondary-button table-action" href="/admin/achievements/<?= $record['id'] ?>/edit">Modifier</a></td></tr><?php endforeach; ?></tbody></table></div><?php endif; ?></section>

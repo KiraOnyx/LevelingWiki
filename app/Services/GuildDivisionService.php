@@ -29,6 +29,7 @@ final class GuildDivisionService
             $values=['name'=>Input::text($data,'name',100,true),'short_name'=>Input::text($data,'short_name',20,true),'description'=>Input::text($data,'description',4000),'color'=>strtoupper(Input::text($data,'color',7,true)),'level'=>$level];
             if(!preg_match('/^#[0-9A-F]{6}$/D',$values['color']))throw new ValidationException('Couleur hexadécimale invalide.');
             if(!in_array($data['archived']??'0',['0','1'],true))throw new ValidationException('Archivage invalide.');
+            $updateMasters=array_key_exists('master_ids',$data);
             $masterIds=$data['master_ids']??[];
             if(!is_array($masterIds)||!array_is_list($masterIds))throw new ValidationException('Responsables invalides.');
             $masterIds=array_values(array_unique(array_map([Input::class,'id'],$masterIds)));sort($masterIds);
@@ -46,7 +47,9 @@ final class GuildDivisionService
                 $before['master_ids']=$repository->masterIds($id);
             }
             if(!$levelOnly){
-                foreach($masterIds as $masterId){
+                // An omitted assignment field preserves the locked associations, including inactive masters.
+                if(!$updateMasters)$masterIds=$before['master_ids']??[];
+                foreach($updateMasters?$masterIds:[] as $masterId){
                     $q=$this->pdo->prepare("SELECT id FROM users WHERE id=? AND is_active=1 AND auth_provider='discord' AND role IN ('editor','admin') FOR UPDATE");$q->execute([$masterId]);
                     if(!$q->fetchColumn())throw new ValidationException('Un responsable sélectionné n’est plus un éditeur ou administrateur Discord actif.');
                 }

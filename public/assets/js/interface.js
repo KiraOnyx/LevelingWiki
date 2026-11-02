@@ -14,11 +14,15 @@ function confirmAction(message, destructive=false) {
         actions.append(cancel,accept);dialog.append(heading,text,actions);document.body.append(dialog);dialog.showModal();cancel.focus();
     });
 }
-document.querySelectorAll('form[method="post"]').forEach(form => {
+const boundPostForms=new WeakSet();
+const postFormUnlocks=new WeakMap();
+window.addEventListener?.('pageshow',()=>document.querySelectorAll('form[method="post"]').forEach(form=>postFormUnlocks.get(form)?.()));
+function installPostForms(scope=document){scope.querySelectorAll('form[method="post"]').forEach(form => {
+    if(boundPostForms.has(form))return;boundPostForms.add(form);
     if(form.hasAttribute('data-quick-status'))return;
     let busy=false;
     const unlock=()=>{busy=false;form.removeAttribute('aria-busy');form.querySelectorAll('button').forEach(button=>button.disabled=false);};
-    window.addEventListener('pageshow',unlock);
+    postFormUnlocks.set(form,unlock);
     form.addEventListener('submit',async event=>{
         event.preventDefault();if(busy)return;busy=true;
         const submitter=event.submitter, data=new FormData(form);
@@ -58,14 +62,17 @@ document.querySelectorAll('form[method="post"]').forEach(form => {
         finally{unlock();}
     });
     if(form.hasAttribute('data-inline-progress')){const confirmation=form.querySelector('[data-undo-confirm]');if(confirmation){confirmation.hidden=true;confirmation.querySelector('input').required=false;}}
-});
+});}
+installPostForms();
 document.querySelectorAll('.admin-nav a').forEach(link=>{if(new URL(link.href).pathname===location.pathname)link.setAttribute('aria-current','page');});
 const context=document.querySelector('[data-context-filters]');
 if(context){
     const rows=[...document.querySelectorAll('[data-filter-row]')];
     const incoming=new URLSearchParams(location.search);for(const field of context.elements)if(field.name&&incoming.has(field.name))field.value=incoming.get(field.name);
-    const filter=()=>{const data=new FormData(context);let count=0;rows.forEach(row=>{row.hidden=[...data].some(([key,value])=>value&&(key==='q'?!row.textContent.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase()):row.dataset[key]!==value));if(!row.hidden)count++;});document.querySelector('[data-context-count]').textContent=count+' résultat'+(count===1?'':'s');};
-    let searchTimer;context.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(filter,250);});context.addEventListener('change',filter);document.addEventListener('achievement-status-saved',filter);context.addEventListener('reset',()=>setTimeout(filter,0));context.addEventListener('submit',event=>event.preventDefault());
+    const normalize=value=>String(value).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr').replace(/œ/g,'oe').trim();
+    const empty=document.createElement('p');empty.className='admin-notice';empty.textContent='Aucun résultat ne correspond à ces filtres.';empty.hidden=true;context.after(empty);
+    const filter=()=>{const data=new FormData(context);let count=0;rows.forEach(row=>{row.hidden=[...data].some(([key,value])=>value&&(key==='q'?!normalize(row.dataset.search??row.textContent).includes(normalize(value)):row.dataset[key]!==value));if(!row.hidden)count++;});document.querySelector('[data-context-count]').textContent=count+' résultat'+(count===1?'':'s');empty.hidden=count>0;};
+    let searchTimer;context.addEventListener('input',()=>{clearTimeout(searchTimer);searchTimer=setTimeout(filter,200);});context.addEventListener('change',()=>{clearTimeout(searchTimer);filter();});document.addEventListener('achievement-status-saved',filter);context.addEventListener('reset',()=>{clearTimeout(searchTimer);setTimeout(filter,0);});context.addEventListener('submit',event=>{event.preventDefault();clearTimeout(searchTimer);filter();});filter();
 }
 
 // Serialize quick edits: counter snapshots and filtered rows stay in response order.

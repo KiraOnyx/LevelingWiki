@@ -15,10 +15,11 @@ body.lw-theme{background:#0b1016;color:var(--text-primary)}body h1,body .nordic-
 .confirmation-dialog{background:#1a2530;color:#f2f0e9;border:1px solid #a58b51;border-radius:18px;padding:28px;max-width:min(480px,calc(100vw - 32px));box-shadow:0 24px 80px #0008}.confirmation-dialog::backdrop{background:#05090ec9}.confirmation-dialog p{margin:18px 0;color:#c6cbd0}.dialog-actions{display:flex;justify-content:flex-end;gap:12px}.dialog-actions button{margin:0!important}
 
 /* Supplied illustrations: decoration only, scoped to the member pages. */
-.yggdrasil-page .page-shell{position:relative;isolation:isolate}
-.yggdrasil-page .page-shell::before{
-    content:"";position:absolute;z-index:-1;pointer-events:none;
-    top:160px;left:0;width:100%;height:min(80vw,1000px);
+.yggdrasil-page{isolation:isolate}
+.yggdrasil-page .page-shell{position:relative}
+.yggdrasil-page::before{
+    content:"";position:fixed;z-index:-1;pointer-events:none;
+    top:calc(var(--navigation-height,106px) + 160px);left:50%;transform:translateX(-50%);width:min(100%,1196px);height:min(80vw,1000px);
     background:url('/assets/illustrations/valhalla/yggdrasil-background.webp') center top/contain no-repeat;
     opacity:.06;
 }
@@ -44,7 +45,7 @@ body.ginnungagap-page .page-shell{max-width:none;width:100%;padding:0;margin:0}
     .nordic-hero{background-image:linear-gradient(90deg,#111923f5 16%,#111923df 48%,#11192370),url('/assets/illustrations/valhalla/valhalla-gates.webp')}
 }
 @media(max-width:650px){
-    .yggdrasil-page .page-shell::before{top:160px;height:90vw;opacity:.04}
+    .yggdrasil-page::before{height:90vw;opacity:.04}
     .nordic-hero{background-image:linear-gradient(90deg,#111923f0,#111923c9),url('/assets/illustrations/valhalla/valhalla-gates.webp');background-position:center,65% center;background-size:cover}
     .ginnungagap{background-position:center,30% center;background-image:linear-gradient(0deg,#090e15fa 0%,#090e15e0 28%,#090e1500 75%),url('/assets/illustrations/valhalla/ginnungagap-404.webp')}
 }
@@ -186,3 +187,14 @@ body .achievement-filters label{display:flex;flex-direction:column;gap:var(--vh-
 .display-tabs{margin-top:12px;margin-bottom:20px}body.collection-page .catalogue .achievement-grid[data-display="list"]{grid-template-columns:1fr}body.collection-page .catalogue .achievement-grid[data-display="list"] .achievement-card{display:grid;grid-template-columns:minmax(180px,2fr) minmax(150px,1fr) minmax(120px,1fr);gap:12px;align-items:center}body.collection-page .catalogue .achievement-grid[data-display="list"] .card-description,body.collection-page .catalogue .achievement-grid[data-display="list"] .card-conditions{display:none}body.collection-page .catalogue .achievement-grid[data-display="list"] .card-top{min-width:0}body.collection-page .catalogue .achievement-grid[data-display="list"] .card-link{overflow-wrap:anywhere}body.collection-page .catalogue .achievement-grid[data-display="list"] .card-bottom{margin:0}body.collection-page .catalogue .achievement-grid[data-display="list"] .declaration-date{margin:0}#catalog-editor{scroll-margin-top:120px}
 @media(max-width:800px){body.collection-page .catalogue .achievement-grid[data-display="list"] .achievement-card{grid-template-columns:minmax(0,1fr)}.display-tabs{flex-wrap:wrap}}
 @media(max-width:650px){body .header-inner nav{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+/* Shared controls: spacing belongs to the action group, never to its buttons. */
+body :is(.primary-button,.secondary-button,.admin-button){display:inline-flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.75rem;max-width:100%;margin:0;padding:.625rem 1rem;line-height:1.4;white-space:normal;overflow-wrap:anywhere;text-align:center;vertical-align:middle}
+body :is(.primary-button,.secondary-button,.admin-button):hover{filter:brightness(1.12)}
+body :is(.primary-button,.secondary-button,.admin-button):active{filter:brightness(.95)}
+body :is(.primary-button,.secondary-button,.admin-button):disabled{opacity:.55;cursor:not-allowed;filter:none}
+body :is(.primary-button,.secondary-button,.admin-button):focus-visible{outline:3px solid var(--color-accent);outline-offset:3px}
+body .danger-button{background:#43272b;border-color:#a65c63;color:#f5c9cd}
+body .collection-tabs,body .display-switch{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;margin:1rem 0}
+body .collection-tabs a,body [data-display-mode]{display:inline-flex;align-items:center;justify-content:center;gap:.75rem;min-height:2.75rem;padding:.625rem 1rem;line-height:1.4}
+body .collection-tabs span{margin:0;font-variant-numeric:tabular-nums}

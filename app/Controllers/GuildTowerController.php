@@ -34,18 +34,17 @@ final class GuildTowerController
                 }catch(ValidationException $e){http_response_code(422);$error=$e->getMessage();}
                 catch(\RuntimeException $e){if(!in_array($e->getCode(),[403,404,409],true))throw $e;http_response_code($e->getCode());$error=$e->getMessage();}
             }elseif($path!=='/admin/tour-de-guilde'){http_response_code(404);return;}
-            $divisions=$repository->all(true);$assigned=$repository->assignedIds((int)$user['id']);$selected=null;$history=[];$masterIds=[];
+            $divisions=$repository->all(true);$assigned=$repository->assignedIds((int)$user['id']);$selected=null;$history=[];
             $selection=$_GET['division']??($_POST['id']??'');
             if($selection!==''){
                 try {$selected=$repository->find(Input::id($selection));}catch(ValidationException){http_response_code(422);$error='Division invalide.';}
                 if($selected){
                     if($service->canManage($user,(int)$selected['id'])){
                         $before=isset($_GET['before'])?Input::id($_GET['before']):0;
-                        $history=$repository->history((int)$selected['id'],$before);$masterIds=$repository->masterIds((int)$selected['id']);
+                        $history=$repository->history((int)$selected['id'],$before);
                     }else{http_response_code(403);$error='Vous ne gérez pas cette division.';$selected=null;}
                 }elseif(!$error){http_response_code(404);$error='Division introuvable.';}
             }
-            $candidates=$isAdmin?$repository->candidates():[];
             $flash=$_SESSION['guild_flash']??null;unset($_SESSION['guild_flash']);$view='guild-divisions';
             require_once dirname(__DIR__).'/Views/helpers.php';require dirname(__DIR__).'/Views/admin/layout.php';
         }catch(ValidationException $e){http_response_code(422);MemberController::render('denied',['error'=>$e->getMessage()]);}

@@ -58,3 +58,26 @@ body.admin-theme{--ad-xs:.5rem;--ad-sm:.75rem;--ad-md:1rem;--ad-lg:1.5rem;--ad-x
 .admin-theme .reward-editor-card>details{min-width:0;margin:0}
 .admin-theme .reward-editor-card>details[open]{flex-basis:100%}
 .admin-theme .reward-editor-card>details>summary,.admin-theme .reward-editor-card>.catalog-cycle,.admin-theme .reward-editor-card>.catalog-cycle button{margin:0}
+
+/* Common action bars for headings, forms and table rows. */
+.admin-theme :is(.admin-actions,.card-actions,.discord-role-actions){display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-start;gap:.75rem;margin-top:.75rem}
+.admin-theme :is(.admin-actions,.card-actions,.discord-role-actions)>*{margin:0}
+.admin-theme .admin-form>.admin-actions,.admin-theme td .admin-actions{margin:0}
+.admin-theme .admin-heading{justify-content:flex-start;align-items:start;flex-direction:column;gap:.75rem}
+.admin-theme .editor-return{margin-bottom:.75rem;margin-top:0}
+.admin-theme .admin-danger-zone{border-color:#a65c63;margin-block:1.5rem}
+.admin-theme .admin-danger-zone .catalog-delete{margin-top:.75rem}
+.admin-theme .admin-add-panel:not(:has(details[open])){width:fit-content;max-width:100%;margin:0 0 1rem;padding:0;border:0;background:transparent;box-shadow:none}
+.admin-theme .admin-add-panel:has(details[open]){margin-inline:0}
+.admin-theme details>summary.secondary-button{display:inline-flex;padding:.625rem 1rem;list-style:none}
+.admin-theme details>summary.secondary-button::-webkit-details-marker{display:none}
+.admin-theme .taxonomy-grid>section{display:flex;flex-wrap:wrap;align-content:start;gap:.75rem}
+.admin-theme .taxonomy-grid .panel-heading{flex-basis:100%;margin:0}
+.admin-theme .taxonomy-grid details{margin:0;border:0;padding:0;min-width:0}
+.admin-theme .taxonomy-grid details[open]{flex-basis:100%}
+.admin-theme .admin-form>button{align-self:flex-start}
+.admin-theme .form-feedback:empty{display:none}
+.admin-theme .admin-form>p{margin:0}
+@media(max-width:600px){.admin-theme td .admin-actions{align-items:stretch}.admin-theme td .admin-actions>*{flex:1 1 9rem}}
+
+.admin-theme .admin-add-panel details[open]>h2{margin-top:.75rem}
