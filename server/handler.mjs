@@ -1,3 +1,4 @@
+import {reportFailure} from './diagnostics.mjs';
 import {semantics,arr,slot,ref} from './semantics.mjs';
 import {Database,connectionPool} from './database.mjs';
 import {Session} from './session.mjs';
@@ -26,15 +27,15 @@ export async function createRuntime(request,options={}){
 }
 export class HttpError extends Error{constructor(status){super('Request rejected');this.status=status;}}
 export async function handle(request,context={},options={}){
- let client,R,db=options.db;try{
+ let client,R,db=options.db,stage='database_connect';const env=options.env??process.env;try{
   if(new URL(request.url).pathname.startsWith('/.netlify/'))return new Response('Page introuvable.',{status:404,headers:secureHeaders});
   if(!db){client=await connectionPool(options.env).connect();db=new Database(client);}
-  await db.run('BEGIN');db.requestTransaction=true;await db.run("SET LOCAL TIME ZONE 'UTC'");
-  R=await createRuntime(request,{...options,db,ip:context.ip??'unknown'});
-  await R.application.run();
+  stage='database_transaction';await db.run('BEGIN');db.requestTransaction=true;await db.run("SET LOCAL TIME ZONE 'UTC'");
+  stage='runtime';R=await createRuntime(request,{...options,onCaught:options.onCaught??(error=>reportFailure(error,'controller',env)),db,ip:context.ip??'unknown'});
+  stage='application';await R.application.run();
   if(R.db.inTransaction())await R.db.rollBack();
-  await R.session.persist();
+  stage='session_persist';await R.session.persist();
   await R.db.run('COMMIT');R.db.requestTransaction=false;
   return new Response(request.method==='HEAD'?null:(R.binary??R.output.join('')),{status:R.status,headers:R.headers});
- }catch(e){if(db?.requestTransaction){await db.run('ROLLBACK').catch(()=>{});db.requestTransaction=false;db.transaction=false;}if(options.onError)options.onError(e);return new Response(e instanceof HttpError?'Requête refusée.':'Service momentanément indisponible.',{status:e instanceof HttpError?e.status:503,headers:secureHeaders});}finally{client?.release();}
+ }catch(e){if(!(e instanceof HttpError))reportFailure(e,stage,env);if(db?.requestTransaction){await db.run('ROLLBACK').catch(()=>{});db.requestTransaction=false;db.transaction=false;}if(options.onError)options.onError(e);return new Response(e instanceof HttpError?'Requête refusée.':'Service momentanément indisponible.',{status:e instanceof HttpError?e.status:503,headers:secureHeaders});}finally{client?.release();}
 }
