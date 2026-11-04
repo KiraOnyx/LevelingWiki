@@ -8,7 +8,7 @@ const secureHeaders={'Content-Type':'text/html; charset=utf-8','Cache-Control':'
 function fields(entries){const out=arr();let count=0;for(const [name,value]of entries){if(++count>2000||name.length>200)throw Error('Too many fields');const match=name.match(/^([a-zA-Z0-9_-]+)(\[\])?$/);if(!match)throw Error('Invalid field');if(match[2]){out[match[1]]??=arr();if(!out[match[1]]||typeof out[match[1]]!=='object')throw Error('Conflicting field');slot(ref(out,match[1]),null).set(value);}else{if(Object.hasOwn(out,name))throw Error('Duplicate field');out[name]=value;}}return out;}
 export async function createRuntime(request,options={}){
  const url=new URL(request.url),env=options.env??process.env;
- const R=semantics({request,env,onCaught:options.onCaught,onTemplate:options.onTemplate,status:200,headers:new Headers(secureHeaders),output:[],binary:null,included:new Set(),files:new Map(),fetch:options.fetch,storageFetch:options.storageFetch,globals:{_GET:fields(url.searchParams),_POST:arr(),_FILES:arr(),_SESSION:arr(),_SERVER:arr({REQUEST_METHOD:request.method,REQUEST_URI:url.pathname+url.search,HTTP_ACCEPT:request.headers.get('accept')??'',REMOTE_ADDR:options.ip??'unknown',HTTPS:'on'})}});
+ const R=semantics({request,env,onCaught:options.onCaught,onTemplate:options.onTemplate,status:200,headers:new Headers(secureHeaders),output:[],binary:null,included:new Set(),files:new Map(),fetch:options.fetch,globals:{_GET:fields(url.searchParams),_POST:arr(),_FILES:arr(),_SESSION:arr(),_SERVER:arr({REQUEST_METHOD:request.method,REQUEST_URI:url.pathname+url.search,HTTP_ACCEPT:request.headers.get('accept')??'',REMOTE_ADDR:options.ip??'unknown',HTTPS:'on'})}});
  R.db=options.db??null;
  if(request.method==='POST'){
   if(request.headers.get('origin')&&request.headers.get('origin')!==url.origin)throw new HttpError(403);
@@ -17,7 +17,7 @@ export async function createRuntime(request,options={}){
   const bytes=new Uint8Array(await request.arrayBuffer());if(bytes.length>limit)throw new HttpError(413);
   const type=request.headers.get('content-type')??'';
   if(type.startsWith('application/x-www-form-urlencoded'))R.globals._POST=fields(new URLSearchParams(new TextDecoder('utf-8',{fatal:true}).decode(bytes)));
-  else if(type.startsWith('multipart/form-data')){const form=await new Response(bytes,{headers:{'content-type':type}}).formData(),text=[];for(const [name,value]of form){if(typeof value==='string')text.push([name,value]);else {if(!['image','evidence'].includes(name)||R.globals._FILES[name])throw new HttpError(400);R.globals._FILES[name]=arr({name:value.name,error:value.size?0:4,bytes:Buffer.from(await value.arrayBuffer())});}}R.globals._POST=fields(text);}else throw new HttpError(415);
+  else if(type.startsWith('multipart/form-data')){const form=await new Response(bytes,{headers:{'content-type':type}}).formData(),text=[];for(const [name,value]of form){if(typeof value==='string')text.push([name,value]);else {if(value.size)throw new HttpError(422);if(!['image','evidence'].includes(name)||R.globals._FILES[name])throw new HttpError(400);R.globals._FILES[name]=arr({name:value.name,error:value.size?0:4,bytes:Buffer.from(await value.arrayBuffer())});}}R.globals._POST=fields(text);}else throw new HttpError(415);
  }
  R.session=new Session(R);
  R.functions.consume_oauth=()=>R.session.consumeOAuth();

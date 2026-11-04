@@ -9,7 +9,7 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["sharp", "pg"]
+  external_node_modules = ["pg"]
   included_files = ["server/private-assets/**"]
 
 [[headers]]

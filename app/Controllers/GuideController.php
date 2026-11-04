@@ -21,7 +21,7 @@ final class GuideController
             if(!PermissionService::edit($user)){http_response_code(403);echo json_encode(['message'=>'Accès refusé.']);return;}
             if(($_SERVER['REQUEST_METHOD']??'GET')!=='POST'){http_response_code(405);return;}
             if(!$auth->validCsrf($_POST['csrf']??null)){http_response_code(403);echo json_encode(['message'=>'Formulaire expiré. Rechargez la page.']);return;}
-            if($path==='/admin/achievements/guide-image')$result=$images->upload($_POST,is_array($_FILES['image']??null)?$_FILES['image']:null,$user);
+            if($path==='/admin/achievements/guide-image')throw new ValidationException('Le téléversement d’images est désactivé.');
             else {$id=empty($_POST['achievement_id'])?0:Input::id($_POST['achievement_id']);$result=['html'=>GuideMarkdown::render(Input::text($_POST,'markdown',100000),$id?array_column($images->images($id),'path'):[])];}
             echo json_encode(['ok'=>true,...$result],JSON_THROW_ON_ERROR);
         }catch(ValidationException $e){http_response_code(422);echo json_encode(['message'=>$e->getMessage()]);}

@@ -21,7 +21,8 @@ function installPostForms(scope=document){scope.querySelectorAll('form[method="p
     if(boundPostForms.has(form))return;boundPostForms.add(form);
     if(form.hasAttribute('data-quick-status'))return;
     let busy=false;
-    const unlock=()=>{busy=false;form.removeAttribute('aria-busy');form.querySelectorAll('button').forEach(button=>button.disabled=false);};
+    const initiallyDisabled=new Set(Array.from(form.querySelectorAll('button')).filter(button=>button.disabled));
+    const unlock=()=>{busy=false;form.removeAttribute('aria-busy');form.querySelectorAll('button').forEach(button=>button.disabled=initiallyDisabled.has(button));};
     postFormUnlocks.set(form,unlock);
     form.addEventListener('submit',async event=>{
         event.preventDefault();if(busy)return;busy=true;

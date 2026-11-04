@@ -1,7 +1,27 @@
-import test from 'node:test';import assert from 'node:assert/strict';import sharp from 'sharp';import {fixture} from './support.mjs';import {handle} from '../../server/handler.mjs';
-test('guide uploads remain private and media routes enforce publication permissions',async()=>{const f=await fixture();try{Object.assign(f.env,{SUPABASE_URL:'https://storage.test',SUPABASE_SERVICE_ROLE_KEY:'test-only-storage-key'});const objects=new Map();f.options.storageFetch=async(url,options)=>{const key=new URL(url).pathname;if(options.method==='POST'){objects.set(key,options.body);return Response.json({Key:key});}if(options.method==='DELETE'){objects.delete(key);return new Response(null,{status:200});}return objects.has(key)?new Response(objects.get(key)):new Response(null,{status:404});};const owner=await f.session(),member=await f.session(2);const upload=async(bytes,type='image/png',name='guide.png')=>{const form=new FormData();form.set('csrf',owner.csrf);form.set('achievement_id','1');form.set('alt','Une illustration');form.set('image',new File([bytes],name,{type}));return handle(new Request('https://wiki.test/admin/achievements/guide-image',{method:'POST',headers:{cookie:owner.cookie},body:form}),{ip:'192.0.2.1'},f.options);};
-const png=await sharp({create:{width:8,height:8,channels:3,background:'#123456'}}).png().toBuffer();let response=await upload(png);assert.equal(response.status,200,await response.clone().text());const data=await response.json();assert.match(data.path,/^\/guide-media\/[a-f0-9]{64}\.png$/);assert.equal(objects.size,1);
-response=await handle(new Request('https://wiki.test'+data.path,{headers:{cookie:member.cookie}}),{},f.options);assert.equal(response.status,200);assert.equal(response.headers.get('content-type'),'image/png');assert.deepEqual(Buffer.from(await response.arrayBuffer()),png);assert.equal((await f.request(data.path)).response.status,403);
-await f.pg.query("UPDATE levelingwiki.achievements SET publication_status='draft' WHERE id=1");assert.equal((await f.request(data.path,{session:member})).response.status,404);assert.equal((await f.request(data.path,{session:owner})).response.status,200);
-response=await upload('<svg onload="alert(1)"></svg>','image/svg+xml','image.svg');assert.equal(response.status,422);assert.equal(objects.size,1);
-}finally{await f.close();}});
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import {execFileSync} from 'node:child_process';
+import {fixture} from './support.mjs';
+import {handle,HttpError} from '../../server/handler.mjs';
+test('uploads are disabled and versioned guide illustrations remain available',async()=>{
+ const f=await fixture();f.options.onError=error=>{if(!(error instanceof HttpError))throw error;};try{
+ const owner=await f.session(),member=await f.session(2);
+ for(const [route,field]of [['/admin/achievements/guide-image','image'],['/admin/achievements/save','evidence']]){
+  const form=new FormData();form.set('csrf',owner.csrf);form.set('achievement_id','1');form.set(field,new File(['image'],'image.png',{type:'image/png'}));
+  const response=await handle(new Request('https://wiki.test'+route,{method:'POST',headers:{cookie:owner.cookie},body:form}),{},f.options);
+  assert.equal(response.status,422);
+ }
+ assert.equal((await f.request('/admin/achievements/guide-image',{session:owner,method:'POST',data:{csrf:owner.csrf,achievement_id:'1'}})).response.status,422);
+ assert.equal((await f.pg.query('SELECT count(*)::int AS n FROM levelingwiki.achievement_guide_images')).rows[0].n,0);
+ const edit=await f.request('/admin/achievements/1/edit',{session:owner});
+ assert.match(edit.body,/type="file" disabled/);assert.match(edit.body,/data-guide-upload disabled/);
+ const image='/assets/images/valhalla-hall.svg';
+ await f.pg.query('INSERT INTO levelingwiki.achievement_guide_images(achievement_id,path,alt_text) VALUES(1,$1,$2)',[image,'Illustration existante']);
+ await f.pg.query('UPDATE levelingwiki.achievement_details SET guide_markdown=$1 WHERE achievement_id=1',['![Illustration existante]('+image+')']);
+ const page=await f.request('/succes/premier',{session:member});assert.equal(page.response.status,200);assert.ok(page.body.includes('src="'+image+'"'));
+ const preview=await f.request('/admin/achievements/guide-preview',{session:owner,method:'POST',data:{csrf:owner.csrf,achievement_id:'1',markdown:'![Illustration existante]('+image+')'}});assert.equal(preview.response.status,200);assert.ok(JSON.parse(preview.body).html.includes('src="'+image+'"'));
+ const files=execFileSync('git',['ls-files','-z','public/assets'],{encoding:'utf8'}).split('\0').filter(file=>/\.(svg|png|jpe?g|webp|avif|gif|ico)$/i.test(file));assert.ok(files.length);
+ for(const file of files){let output;try{output=await fs.readFile('dist/'+file.slice(7));}catch{output=await fs.readFile('server/private-assets/'+file.split('/').at(-1));}assert.deepEqual(output,await fs.readFile(file),file);}
+ }finally{await f.close();}
+});

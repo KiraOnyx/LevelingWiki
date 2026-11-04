@@ -21,4 +21,4 @@ function editorHarness(fetch){
 }
 test('aperçu affiche le rendu serveur et conserve le texte',async()=>{const ui=editorHarness(async()=>({ok:true,json:async()=>({ok:true,html:'<p><strong>Texte</strong></p>'})}));await ui.handlers.preview();assert.match(ui.output.innerHTML,/<strong>/);assert.equal(ui.area.value,'**Texte**');});
 test('erreur aperçu annoncée sans perdre la rédaction',async()=>{const ui=editorHarness(async()=>{throw new Error('Hors ligne');});await ui.handlers.preview();assert.equal(ui.feedback.textContent,'Hors ligne');assert.equal(ui.area.value,'**Texte**');});
-test('image manquante ou sans alternative : aucun envoi',async()=>{let calls=0;const ui=editorHarness(async()=>{calls++;});await ui.handlers.upload({currentTarget:ui.upload});assert.equal(calls,0);assert.match(ui.feedback.textContent,/texte alternatif/);});
+test('upload désactivé : aucun gestionnaire ni envoi',()=>{let calls=0;const ui=editorHarness(async()=>{calls++;});assert.equal(ui.handlers.upload,undefined);assert.equal(calls,0);});

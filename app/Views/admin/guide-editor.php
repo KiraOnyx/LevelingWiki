@@ -8,8 +8,8 @@
 <p data-guide-feedback role="status" aria-live="polite"></p><section aria-label="Aperçu du guide" class="guide-prose guide-preview" data-guide-output><p>L’aperçu utilise le même rendu que la fiche membre.</p></section>
 <details><summary>Ajouter une image / Images associées</summary>
 <?php if(!$editing): ?><p>Enregistrez d’abord le succès pour lui associer des images. Votre guide peut être rédigé dès maintenant.</p><?php else: ?>
-<label for="guide-alt">Texte alternatif de l’image<input id="guide-alt" maxlength="500" data-guide-alt placeholder="Décrivez ce que montre la capture"></label>
-<label for="guide-image">Fichier JPEG, PNG ou WebP<input id="guide-image" type="file" accept="image/jpeg,image/png,image/webp" data-guide-file></label><p class="form-help">5 Mo par défaut, 20 mégapixels maximum. L’image est conservée même si vous annulez ensuite la rédaction.</p>
-<button type="button" class="secondary-button" data-guide-upload>Ajouter l’image au guide</button>
+<label for="guide-alt">Texte alternatif de l’image<input id="guide-alt" disabled maxlength="500" data-guide-alt placeholder="Décrivez ce que montre la capture"></label>
+<label for="guide-image">Fichier JPEG, PNG ou WebP<input id="guide-image" type="file" disabled accept="image/jpeg,image/png,image/webp" data-guide-file></label><p class="form-help">5 Mo par défaut, 20 mégapixels maximum. L’image est conservée même si vous annulez ensuite la rédaction.</p>
+<button type="button" class="secondary-button" data-guide-upload disabled>Ajouter l’image au guide</button>
 <ul class="guide-images" data-guide-images><?php foreach(($guideImages??[]) as $guideImage): ?><li><img src="<?= e($guideImage['path']) ?>" alt="<?= e($guideImage['alt_text']) ?>" loading="lazy"><button type="button" class="secondary-button" data-guide-insert="<?= e($guideImage['path']) ?>" data-alt="<?= e($guideImage['alt_text']) ?>">Insérer : <?= e($guideImage['alt_text']) ?></button></li><?php endforeach; ?></ul>
 <?php endif; ?></details><div class="admin-actions"><button class="primary-button">Enregistrer le succès</button><a class="secondary-button" href="/admin/achievements">Annuler</a></div></section>

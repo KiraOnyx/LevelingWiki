@@ -15,10 +15,4 @@ if(typeof document!=='undefined')document.querySelectorAll('[data-guide-editor]'
     editor.querySelectorAll('[data-markdown]').forEach(button=>button.addEventListener('click',()=>insert(markdownInsertion(button.dataset.markdown,area.value.slice(...selection)))));
     editor.querySelector('[data-guide-preview]').addEventListener('click',preview);
     editor.addEventListener('click',event=>{const button=event.target.closest('[data-guide-insert]');if(button)insert(imageMarkdown(button.dataset.guideInsert,button.dataset.alt));});
-    editor.querySelector('[data-guide-upload]')?.addEventListener('click',async event=>{
-        const button=event.currentTarget,file=editor.querySelector('[data-guide-file]').files[0],alt=editor.querySelector('[data-guide-alt]').value.trim();
-        if(!file||!alt){feedback.textContent='Sélectionnez une image et renseignez son texte alternatif.';return;}
-        const data=payload();data.set('image',file);data.set('alt',alt);button.disabled=true;feedback.textContent='Envoi de l’image…';
-        try{const result=await request('/admin/achievements/guide-image',data);insert(imageMarkdown(result.path,result.alt));const li=document.createElement('li'),img=document.createElement('img'),reuse=document.createElement('button');img.src=result.path;img.alt=result.alt;reuse.type='button';reuse.className='secondary-button';reuse.dataset.guideInsert=result.path;reuse.dataset.alt=result.alt;reuse.textContent=`Insérer : ${result.alt}`;li.append(img,reuse);editor.querySelector('[data-guide-images]').append(li);await preview();}catch(error){feedback.textContent=error.message;}finally{button.disabled=false;}
-    });
 });
