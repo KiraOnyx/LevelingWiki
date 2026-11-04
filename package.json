@@ -1,0 +1,37 @@
+{
+  "name": "levelingwiki",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "test": "node --test tests/node/*.test.mjs",
+    "check": "npm run build && npm test",
+    "migration:prepare": "node tools/migration/prepare.mjs",
+    "migration:import": "node tools/migration/import.mjs",
+    "test:parity": "node --test tests/parity/*.test.mjs",
+    "migration:apply": "node tools/migration/apply.mjs",
+    "test:browser": "node --test tests/browser/*.test.mjs",
+    "verify:release": "node tools/verify-release.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "pg": "^8.16.3",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "sharp": "^0.35.5",
+    "unified": "^11.0.5"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.3.14",
+    "@php-wasm/node": "^3.1.54",
+    "@php-wasm/universal": "^3.1.54",
+    "@playwright/test": "^1.56.1",
+    "esbuild": "^0.25.12",
+    "php-parser": "^3.4.0"
+  }
+}

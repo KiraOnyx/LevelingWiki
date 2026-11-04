@@ -1,0 +1,10 @@
+import fs from 'node:fs/promises';
+import {parseDump,schemaFor} from './dump.mjs';
+const source=process.argv[2]??'migration-private/levelingwiki_mariadb.sql';
+const dump=parseDump(await fs.readFile(source,'utf8'));
+await fs.mkdir('supabase/migrations',{recursive:true});
+await fs.writeFile('supabase/migrations/001_historical.sql',schemaFor(dump));
+await fs.mkdir('migration-output',{recursive:true,mode:0o700});
+const data={sha256:dump.sha256,tables:[...dump.tables.values()].map(t=>({name:t.name,sequences:t.columns.filter(c=>c.auto).map(c=>({column:c.name,next:t.next})),columns:t.columns.filter(c=>!c.generated).map(c=>c.name),rows:t.rows.map(r=>Object.fromEntries(Object.entries(r).filter(([k])=>!t.columns.find(c=>c.name===k)?.generated)))}))};
+await fs.writeFile('migration-output/data.json',JSON.stringify(data),{mode:0o600});
+console.log(`Prepared ${data.tables.length} tables and ${data.tables.reduce((n,t)=>n+t.rows.length,0)} rows in private migration-output.`);

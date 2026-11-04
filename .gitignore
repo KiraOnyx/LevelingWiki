@@ -8,3 +8,12 @@
 *.log
 /coverage/
 /storage/
+# Private database exports and generated migration data
+/migration-private/
+/migration-output/
+/.local-demo/
+/.netlify/
+/dist/
+/test-results/
+/server/generated/
+/server/private-assets/
