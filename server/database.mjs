@@ -1,7 +1,8 @@
 import pg from 'pg';
+import {databaseTLS} from './database-tls.mjs';
 import {arr,values,PDOException} from './semantics.mjs';
 let pool;
-export function connectionPool(env=process.env){if(!pool){if(!env.DATABASE_URL)throw Error('DATABASE_URL is required');const u=new URL(env.DATABASE_URL);if(!['postgres:','postgresql:'].includes(u.protocol))throw Error('Invalid database URL');for(const key of ['sslmode','sslcert','sslkey','sslrootcert'])u.searchParams.delete(key);pool=new pg.Pool({connectionString:u.href,max:3,idleTimeoutMillis:20000,connectionTimeoutMillis:8000,ssl:{rejectUnauthorized:true,...(env.DATABASE_CA_CERT?{ca:env.DATABASE_CA_CERT}:{})},types:{getTypeParser:oid=>[20,1700,1114,1184,114,3802].includes(oid)?v=>v:pg.types.getTypeParser(oid)}});}return pool;}
+export function connectionPool(env=process.env){if(!pool){if(!env.DATABASE_URL)throw Error('DATABASE_URL is required');const u=new URL(env.DATABASE_URL);if(!['postgres:','postgresql:'].includes(u.protocol))throw Error('Invalid database URL');for(const key of ['sslmode','sslcert','sslkey','sslrootcert'])u.searchParams.delete(key);pool=new pg.Pool({connectionString:u.href,max:3,idleTimeoutMillis:20000,connectionTimeoutMillis:8000,ssl:databaseTLS(),types:{getTypeParser:oid=>[20,1700,1114,1184,114,3802].includes(oid)?v=>v:pg.types.getTypeParser(oid)}});}return pool;}
 export function postgresSQL(sql){
  sql=sql.replace(/(\b(?:\w+\.)?\w+) LIKE \? ESCAPE/gi,'(levelingwiki.search_text($1) COLLATE "C") ILIKE levelingwiki.search_text(?) ESCAPE');
  sql=sql.replace(/LOCK IN SHARE MODE/gi,'FOR SHARE').replace(/CAST\((\w+) AS CHAR\)/gi,'CAST($1 AS TEXT)');
