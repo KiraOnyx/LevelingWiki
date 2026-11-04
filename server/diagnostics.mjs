@@ -1,8 +1,9 @@
 // Never log exception messages, URLs, SQL, request paths or session contents.
-const codes=new Set(['XX000','08P01','08006','08001','57P01','ERR_INVALID_URL','ERR_INVALID_ARG_TYPE','28P01','28000','3D000','3F000','42P01','42703','42501','53300','57P03','ECONNREFUSED','ECONNRESET','ENOTFOUND','ETIMEDOUT','ENETUNREACH','SELF_SIGNED_CERT_IN_CHAIN','DEPTH_ZERO_SELF_SIGNED_CERT','UNABLE_TO_VERIFY_LEAF_SIGNATURE','CERT_HAS_EXPIRED','ERR_TLS_CERT_ALTNAME_INVALID']);
+const codes=new Set(['0A000','42883','42804','22P02','25P02','XX000','08P01','08006','08001','57P01','ERR_INVALID_URL','ERR_INVALID_ARG_TYPE','28P01','28000','3D000','3F000','42P01','42703','42501','53300','57P03','ECONNREFUSED','ECONNRESET','ENOTFOUND','ETIMEDOUT','ENETUNREACH','SELF_SIGNED_CERT_IN_CHAIN','DEPTH_ZERO_SELF_SIGNED_CERT','UNABLE_TO_VERIFY_LEAF_SIGNATURE','CERT_HAS_EXPIRED','ERR_TLS_CERT_ALTNAME_INVALID']);
 // Classify known messages internally; only fixed labels ever leave this function.
 export function failureReason(error){
  const message=String(error?.cause?.message??error?.message??'');
+ if(/nondeterministic collations are not supported/i.test(message))return 'UNSUPPORTED_COLLATION_OPERATION';
  if(/circuit breaker|circuit_breaker/i.test(message))return 'POOLER_CIRCUIT_BREAKER';
  if(/tenant or user not found/i.test(message))return 'POOLER_TENANT_OR_USER_NOT_FOUND';
  if(/password authentication failed|wrong password/i.test(message))return 'PASSWORD_REJECTED';
