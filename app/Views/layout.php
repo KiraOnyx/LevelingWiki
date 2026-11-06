@@ -10,7 +10,7 @@ $hasYggdrasil = in_array($page, ['member/home', 'catalog', 'member/achievements'
     <?php require __DIR__.'/partials/mobile-meta.php'; ?>
     <meta name="description" content="Explorez les succès de Leveling Fitness, leurs conditions de déblocage et leurs récompenses. Suivez votre progression personnelle.">
     <title><?= e($title) ?></title>
-    <link rel="icon" href="/assets/images/emblem.svg" type="image/svg+xml">
+    <link rel="icon" href="/assets/icons/valhalla-favicon.png" type="image/png">
     <link rel="stylesheet" href="/assets/vendor/neu-axentix/neu-axentix.min.css">
     <link rel="stylesheet" href="/assets/css/theme.css">
     <link rel="stylesheet" href="/assets/css/admin.css">

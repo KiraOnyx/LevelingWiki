@@ -70,6 +70,7 @@ final class AdminController
             Audit::record($this->pdo,$actor,'logout','user',$actor); $this->auth->logout(); $this->redirect('/connexion'); return;
         }
         if ($path === '/admin/password') {
+            if (getenv('OWNER_PASSWORD') && $this->user['auth_provider']==='local' && $this->user['role']==='super_admin') throw new ValidationException('Ce mot de passe est géré dans Netlify : modifiez OWNER_PASSWORD puis redéployez.');
             if (!$this->auth->confirmPassword($this->user,$_POST['current_password'] ?? null)) throw new ValidationException('Le mot de passe actuel est incorrect.');
             $password = Input::password($_POST['password'] ?? null);
             if (!is_string($_POST['password_confirmation'] ?? null) || !hash_equals($password,$_POST['password_confirmation'])) throw new ValidationException('Les mots de passe ne correspondent pas.');
@@ -144,7 +145,8 @@ final class AdminController
             $page = max(1,min(10000,is_scalar($_GET['page'] ?? null) ? (int) $_GET['page'] : 1));
             $this->render('history',['records'=>$this->repository->history($page),'pageNumber'=>$page]);return;
         }
-        if ($path === '/admin/password') { $this->render('password',['error'=>$error]);return; }
+        if ($path === '/admin/password') {
+            if (getenv('OWNER_PASSWORD') && $this->user['auth_provider']==='local' && $this->user['role']==='super_admin') throw new ValidationException('Ce mot de passe est géré dans Netlify : modifiez OWNER_PASSWORD puis redéployez.'); $this->render('password',['error'=>$error]);return; }
         http_response_code(404);$this->render('message',['error'=>'Page introuvable.']);
     }
     private function isQuickJson(string $path): bool
